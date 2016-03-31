@@ -40,8 +40,8 @@ import android.jiang.com.library.utils.HttpUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
-import com.apkfuns.logutils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.Call;
@@ -254,7 +254,6 @@ public class OkHttpTask {
     }
 
 
-
     public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
@@ -283,7 +282,6 @@ public class OkHttpTask {
             }
         }, headers);
     }
-
 
 
     public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
@@ -382,12 +380,12 @@ public class OkHttpTask {
                         .append(response.request().headers().toString())
                         .append("status:")
                         .append(status);
-                LogUtils.i(buffer.toString());
+                Log.i(TAG, buffer.toString());
             }
             final String string = HttpUtils.getContent(response.body().string());
             if (status == 200) {
                 if (isDebug())
-                    LogUtils.json(string);
+                    Log.i(TAG, "response: " + string);
                 Object o = mGson.fromJson(string, callBack.mType);
                 sendPostSuccessCallBack(o, callBack);
             } else if (status == 204) {
@@ -416,7 +414,7 @@ public class OkHttpTask {
 
     }
 
-   private void dealFailResponse(String msg, BaseCallBack callBack) {
+    private void dealFailResponse(String msg, BaseCallBack callBack) {
         sendFSCallBack(WS_State.OTHERS, msg, callBack);
     }
 
