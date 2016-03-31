@@ -1,6 +1,9 @@
 # OkHttpTaskUtils
 okhttp封装的网络请求
 仅用于自己的项目，其他人请先阅读源码后再尝试。 <br />
+初始化配置：<br />
+ OkHttpTask.getInstance().initDebugModel(BuildConfig.ISDEBUG);
+
 
 用法: <br />
 * gradle: <br />
