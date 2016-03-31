@@ -28,13 +28,11 @@
 
 package android.jiang.com.library;
 
-import android.support.annotation.NonNull;
-
 /**
  * Created by jiang on 10/26/15.
  */
 public class Param {
-    public Param(@NonNull String key, @NonNull String value) {
+    public Param(String key,String value) {
         this.key = key;
         this.value = value;
     }
@@ -42,11 +40,7 @@ public class Param {
     public String key;
     public String value;
 
-    /**
-     * 为了方便的生成 key=value
-     *
-     * @return
-     */
+
     @Override
     public String toString() {
         return key + "=" + value;

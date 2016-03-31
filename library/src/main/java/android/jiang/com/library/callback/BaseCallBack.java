@@ -46,21 +46,21 @@ public abstract class BaseCallBack<T> {
     /**
      * 失败
      *
-     * @param ret
+     * @param ret 数据
      */
     public abstract void onFail(ws_ret ret);  //失败
 
     /**
      * 成功
      *
-     * @param t
+     * @param t 数据
      */
     public abstract void onSuccess(T t);  //成功
 
     /**
      * 无数据， 只在get中用到
      *
-     * @param ret
+     * @param ret 数据
      */
     public abstract void onNoData(ws_ret ret); //无数据， 注意： 当是post请求的时候该方法不会回调
 
@@ -77,14 +77,14 @@ public abstract class BaseCallBack<T> {
     /**
      * 所有的网络请求成功以后都会走这个方法，
      *
-     * @param response
+     * @param response 数据
      */
     public abstract void onFinishResponse(Response response);
 
     /**
      * 下载文件事 的进度
      *
-     * @param progress
+     * @param progress 进度
      */
     public abstract void onProgress(long progress);
 

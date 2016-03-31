@@ -35,7 +35,6 @@ import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.callback.DownLoadCallBack;
 import android.jiang.com.library.exception.UrlNotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.lang.ref.WeakReference;
@@ -129,37 +128,37 @@ public class OkHttpRequest {
             this.type = type;
         }
 
-        public Builder with(@NonNull NetTaskListener ct) {
+        public Builder with( NetTaskListener ct) {
             this.ct = ct;
             return this;
         }
 
-        public Builder url(@NonNull String url) {
+        public Builder url( String url) {
             this.url = url;
             return this;
         }
 
-        public Builder path(@NonNull String path) {
+        public Builder path( String path) {
             this.path = path;
             return this;
         }
 
-        public Builder fileName(@NonNull String fileName) {
+        public Builder fileName( String fileName) {
             this.fileName = fileName;
             return this;
         }
 
-        public Builder tag(@NonNull Object tag) {
+        public Builder tag( Object tag) {
             this.tag = tag;
             return this;
         }
 
-        public Builder params(@NonNull Map<String, String> params) {
+        public Builder params( Map<String, String> params) {
             this.params = params;
             return this;
         }
 
-        public Builder addParams(@NonNull String key, String val) {
+        public Builder addParams( String key, String val) {
             if (this.params == null) {
                 params = new IdentityHashMap<>();
             }
@@ -167,12 +166,12 @@ public class OkHttpRequest {
             return this;
         }
 
-        public Builder headers(@NonNull Map<String, String> headers) {
+        public Builder headers( Map<String, String> headers) {
             this.headers = headers;
             return this;
         }
 
-        public Builder addHeader(@NonNull String key, String val) {
+        public Builder addHeader( String key, String val) {
             if (this.headers == null) {
                 headers = new IdentityHashMap<>();
             }

@@ -44,12 +44,7 @@ import java.util.Set;
 public class HttpUtils {
 
 
-    /**
-     * get请求中的拼接字符串
-     *
-     * @param param
-     * @return
-     */
+
     public static String parseParams2String(Map<String, String> param) {
         if (param == null || param.size() == 0)
             return "";
@@ -67,25 +62,13 @@ public class HttpUtils {
     }
 
 
-    /**
-     * 检测网络是否可用
-     *
-     * @param ct
-     * @return
-     */
     public static boolean isNetworkConnected(Context ct) {
         ConnectivityManager cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         return ni != null && ni.isConnectedOrConnecting();
     }
 
-    /**
-     * 获取当前网络类型
-     *
-     * @return 0：没有网络   1：WIFI网络   2：WAP网络    3：NET网络
-     */
-
-    public static final int NETTYPE_WIFI = 0x01;
+   public static final int NETTYPE_WIFI = 0x01;
     public static final int NETTYPE_CMWAP = 0x02;
     public static final int NETTYPE_CMNET = 0x03;
 

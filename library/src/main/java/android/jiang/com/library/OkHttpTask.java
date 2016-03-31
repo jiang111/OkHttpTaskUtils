@@ -133,16 +133,7 @@ public class OkHttpTask {
         return mGson;
     }
 
-    /**
-     * 处理 不需要 context作为依托的方法
-     *
-     * @param url
-     * @param params
-     * @param callBack
-     * @param tag
-     * @param TYPE
-     * @param headers
-     */
+
     public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, Map<String, String> headers) {
 
         if (!validateMethodParams(url, callBack, TYPE))
@@ -263,18 +254,7 @@ public class OkHttpTask {
     }
 
 
-    /**
-     * 所有的fragment需要导入 v4包下的fragment
-     * 如果传递过来的是 Fragment， 则调用fragment相关的请求
-     *
-     * @param act      一个fragment的实例， 用于判断fragment是否已经没add到activity里
-     * @param url
-     * @param params
-     * @param headers
-     * @param callBack
-     * @param tag
-     * @param TYPE
-     */
+
     public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
@@ -305,17 +285,7 @@ public class OkHttpTask {
     }
 
 
-    /**
-     * 如果是activity  则走这个方法
-     *
-     * @param act
-     * @param url
-     * @param params
-     * @param headers
-     * @param callBack
-     * @param tag
-     * @param TYPE
-     */
+
     public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
         if (!canPassActivity(act)) {
             return;
@@ -381,16 +351,7 @@ public class OkHttpTask {
         return true;
     }
 
-    /**
-     * 核心请求
-     *
-     * @param url
-     * @param params
-     * @param headers
-     * @param tag
-     * @param TYPE
-     * @param back
-     */
+
     private void doJob(final String url, Map<String, String> params, final Object tag, final int TYPE, SimpleCallBack back, Map<String, String> headers) {
         Request request;
         if (TYPE == TYPE_POST) {
@@ -410,13 +371,7 @@ public class OkHttpTask {
         call.enqueue(back);  //加入队列
     }
 
-    /**
-     * 处理 核心请求返回的onResponse 方法中的数据
-     *
-     * @param response
-     * @param TYPE
-     * @param callBack
-     */
+
     private void dealSuccessResponse(Response response, int TYPE, BaseCallBack callBack) {
         try {
             int status = response.code();
@@ -461,14 +416,7 @@ public class OkHttpTask {
 
     }
 
-    /**
-     * 处理 onFailure 方法中的数据
-     *
-     * @param msg
-     * @param callBack
-     */
-
-    private void dealFailResponse(String msg, BaseCallBack callBack) {
+   private void dealFailResponse(String msg, BaseCallBack callBack) {
         sendFSCallBack(WS_State.OTHERS, msg, callBack);
     }
 
@@ -516,24 +464,11 @@ public class OkHttpTask {
 
     }
 
-    /**
-     * 设置返回值  Fs 代表  FailString
-     *
-     * @param state
-     * @param msg
-     * @param callback
-     */
+
     private void sendFSCallBack(final int state, final String msg, final BaseCallBack callback) {
         sendErrorString(state, msg, callback);
     }
 
-    /**
-     * 返回到主线程
-     *
-     * @param state
-     * @param msg
-     * @param callback
-     */
     private void sendErrorString(final int state, final String msg, final BaseCallBack callback) {
 
         mDelivery.post(new Runnable() {
@@ -579,11 +514,6 @@ public class OkHttpTask {
     }
 
 
-    /**
-     * 取消一次网络请求任务
-     *
-     * @param key
-     */
     public void cancelTask(Object key) {
         try {
             mOkHttpClient.cancel(key);

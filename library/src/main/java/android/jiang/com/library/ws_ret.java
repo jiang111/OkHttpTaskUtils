@@ -27,19 +27,15 @@
  */
 package android.jiang.com.library;
 
-import android.support.annotation.IntDef;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * 网络请求失败或者没数据的时候，调用的类
  * Created by jiang on 15/10/16.
  */
 public class ws_ret {
+
     @SerializedName("status")
     @Expose
     private int state;
@@ -49,7 +45,7 @@ public class ws_ret {
     public ws_ret() {
     }
 
-    public ws_ret(@STATE int state, String msg) {
+    public ws_ret(int state, String msg) {
         this.state = state;
         this.msg = msg;
     }
@@ -67,12 +63,8 @@ public class ws_ret {
         return state;
     }
 
-    public void setState(@STATE int state) {
+    public void setState(int state) {
         this.state = state;
     }
 
-    @IntDef({WS_State.SUCCESS, WS_State.NONET, WS_State.NODATA, WS_State.OTHERS})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface STATE {
-    }
 }
