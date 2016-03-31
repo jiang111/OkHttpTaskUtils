@@ -40,8 +40,8 @@ import android.jiang.com.library.utils.HttpUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
+import com.apkfuns.logutils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.Call;
@@ -380,12 +380,12 @@ public class OkHttpTask {
                         .append(response.request().headers().toString())
                         .append("status:")
                         .append(status);
-                Log.i(TAG, buffer.toString());
+                LogUtils.i(buffer.toString());
             }
             final String string = HttpUtils.getContent(response.body().string());
             if (status == 200) {
                 if (isDebug())
-                    Log.i(TAG, "response: " + string);
+                    LogUtils.json(string);
                 Object o = mGson.fromJson(string, callBack.mType);
                 sendPostSuccessCallBack(o, callBack);
             } else if (status == 204) {
