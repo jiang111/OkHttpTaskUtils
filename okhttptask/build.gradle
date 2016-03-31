@@ -1,16 +1,5 @@
 apply plugin: 'com.android.library'
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-    }
-}
-
-apply from:
-
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
