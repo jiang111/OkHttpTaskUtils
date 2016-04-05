@@ -44,7 +44,6 @@ import java.util.Set;
 public class HttpUtils {
 
 
-
     public static String parseParams2String(Map<String, String> param) {
         if (param == null || param.size() == 0)
             return "";
@@ -68,7 +67,7 @@ public class HttpUtils {
         return ni != null && ni.isConnectedOrConnecting();
     }
 
-   public static final int NETTYPE_WIFI = 0x01;
+    public static final int NETTYPE_WIFI = 0x01;
     public static final int NETTYPE_CMWAP = 0x02;
     public static final int NETTYPE_CMNET = 0x03;
 
@@ -98,7 +97,7 @@ public class HttpUtils {
     public static String getContent(String content) {
         if (TextUtils.isEmpty(content))
             return "";
-        return content.replace("&lt;", "<").replace("&gt;", ">").replace("&#39;", "\'").replace("&#34;","\\\"").replace("&amp;","&");
+        return content.replace("&lt;", "<").replace("&gt;", ">").replace("&#39;", "\'").replace("&#34;", "\\\"").replace("&amp;", "&").replace("&quot;", "\\\"");
 
     }
 
