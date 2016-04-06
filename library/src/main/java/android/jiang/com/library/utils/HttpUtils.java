@@ -97,7 +97,15 @@ public class HttpUtils {
     public static String getContent(String content) {
         if (TextUtils.isEmpty(content))
             return "";
-        return content.replace("&lt;", "<").replace("&gt;", ">").replace("&#39;", "\'").replace("&#34;", "\\\"").replace("&amp;", "&").replace("&quot;", "\\\"");
+        return content.replace("\\u003c","<")
+                .replace("\\u003e",">")
+                .replace("\\u0026","&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&#39;", "\'")
+                .replace("&#34;", "\\\"")
+                .replace("&amp;", "&")
+                .replace("&quot;", "\\\"");
 
     }
 
