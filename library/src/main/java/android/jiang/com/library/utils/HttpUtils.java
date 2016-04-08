@@ -94,13 +94,11 @@ public class HttpUtils {
         return netType;
     }
 
+
     public static String getContent(String content) {
         if (TextUtils.isEmpty(content))
             return "";
-        return content.replace("\\u003c","<")
-                .replace("\\u003e",">")
-                .replace("\\u0026","&")
-                .replace("&lt;", "<")
+        return content.replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&#39;", "\'")
                 .replace("&#34;", "\\\"")
@@ -109,5 +107,18 @@ public class HttpUtils {
 
     }
 
+    public static String getXSSContent(String content) {
+        if (TextUtils.isEmpty(content))
+            return "";
+        return content.replace("\\u003c", "<")
+                .replace("\\u003e", ">")
+                .replace("\\u0026", "&");
+    }
+
+    public static String getAllContent(String content) {
+        String result = getXSSContent(content);
+        return getContent(result);
+
+    }
 
 }
