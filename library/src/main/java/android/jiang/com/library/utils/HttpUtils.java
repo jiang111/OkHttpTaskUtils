@@ -101,9 +101,9 @@ public class HttpUtils {
         return content.replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&#39;", "\'")
-                .replace("&#34;", "\\\"")
+                .replace("&#34;", "\"")
                 .replace("&amp;", "&")
-                .replace("&quot;", "\\\"");
+                .replace("&quot;", "\"");
 
     }
 
