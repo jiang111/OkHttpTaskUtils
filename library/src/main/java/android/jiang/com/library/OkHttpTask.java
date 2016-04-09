@@ -147,6 +147,7 @@ public class OkHttpTask {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                callBack.onFinishResponse(response);
                 dealSuccessResponse(response, TYPE, callBack);
 
             }
@@ -246,7 +247,7 @@ public class OkHttpTask {
 
             @Override
             public void onResponse(Response response) throws IOException {
-
+                callBack.onFinishResponse(response);
                 dealSuccessResponse(response, TYPE, callBack);
 
             }
@@ -277,6 +278,7 @@ public class OkHttpTask {
             public void onResponse(Response response) throws IOException {
                 if (!canPassFragment(act))
                     return;
+                callBack.onFinishResponse(response);
                 dealSuccessResponse(response, TYPE, callBack);
 
             }
