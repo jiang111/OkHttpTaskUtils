@@ -94,19 +94,33 @@ public class HttpUtils {
         return netType;
     }
 
+    public static String getContentByString(boolean notConvert, String content) {
 
-    public static String getContent(boolean notConvert, String content) {
-
-        if (notConvert)
-            return content;
         if (TextUtils.isEmpty(content))
             return "";
+        if (notConvert)
+            return content;
         return content.replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&#39;", "\'")
                 .replace("&#34;", "\"")
                 .replace("&amp;", "&")
                 .replace("&quot;", "\"");
+
+    }
+
+    public static String getContent(boolean notConvert, String content) {
+
+        if (TextUtils.isEmpty(content))
+            return "";
+        if (notConvert)
+            return content;
+        return content.replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&#39;", "\'")
+                .replace("&#34;", "\\\"")
+                .replace("&amp;", "&")
+                .replace("&quot;", "\\\"");
 
     }
 
@@ -118,7 +132,24 @@ public class HttpUtils {
                 .replace("\\u0026", "&");
     }
 
+    /**
+     * 这个方法专门给消息中心的列表页用的
+     *
+     * @param content
+     * @return
+     */
     public static String getAllContent(String content) {
+        String result = getXSSContent(content);
+        return getContentByString(false, result);
+    }
+
+    /**
+     * 通用
+     *
+     * @param content
+     * @return
+     */
+    public static String getAllContentByString(String content) {
         String result = getXSSContent(content);
         return getContent(false, result);
 
