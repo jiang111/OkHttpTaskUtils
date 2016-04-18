@@ -95,7 +95,10 @@ public class HttpUtils {
     }
 
 
-    public static String getContent(String content) {
+    public static String getContent(boolean notConvert, String content) {
+
+        if (notConvert)
+            return content;
         if (TextUtils.isEmpty(content))
             return "";
         return content.replace("&lt;", "<")
@@ -117,7 +120,7 @@ public class HttpUtils {
 
     public static String getAllContent(String content) {
         String result = getXSSContent(content);
-        return getContent(result);
+        return getContent(false, result);
 
     }
 

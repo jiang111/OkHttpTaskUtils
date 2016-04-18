@@ -134,7 +134,7 @@ public class OkHttpTask {
     }
 
 
-    public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, Map<String, String> headers) {
+    public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
 
         if (!validateMethodParams(url, callBack, TYPE))
             return;
@@ -148,7 +148,7 @@ public class OkHttpTask {
             @Override
             public void onResponse(Response response) throws IOException {
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, callBack);
+                dealSuccessResponse(response, TYPE,notConvert, callBack);
 
             }
         }, headers);
@@ -226,7 +226,7 @@ public class OkHttpTask {
     }
 
 
-    public void doJobByContext(final Context context, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
+    public void doJobByContext(final Context context, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
 
         if (context == null)
             return;
@@ -248,14 +248,14 @@ public class OkHttpTask {
             @Override
             public void onResponse(Response response) throws IOException {
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
 
             }
         }, headers);
     }
 
 
-    public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
+    public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
         }
@@ -279,14 +279,14 @@ public class OkHttpTask {
                 if (!canPassFragment(act))
                     return;
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
 
             }
         }, headers);
     }
 
 
-    public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, Map<String, String> headers) {
+    public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassActivity(act)) {
             return;
         }
@@ -315,7 +315,7 @@ public class OkHttpTask {
                     return;
                 }
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
 
             }
         }, headers);
@@ -372,7 +372,7 @@ public class OkHttpTask {
     }
 
 
-    private void dealSuccessResponse(Response response, int TYPE, BaseCallBack callBack) {
+    private void dealSuccessResponse(Response response, int TYPE, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
             if (isDebug()) {
@@ -384,7 +384,7 @@ public class OkHttpTask {
                         .append(status);
                 LogUtils.i(buffer.toString());
             }
-            final String string = HttpUtils.getContent(response.body().string());
+            final String string = HttpUtils.getContent(notConvert,response.body().string());
             if (status == 200) {
                 if (isDebug())
                     LogUtils.json(string);
