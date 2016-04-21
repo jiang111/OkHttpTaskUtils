@@ -148,7 +148,7 @@ public class OkHttpTask {
             @Override
             public void onResponse(Response response) throws IOException {
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE,notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
 
             }
         }, headers);
@@ -375,19 +375,12 @@ public class OkHttpTask {
     private void dealSuccessResponse(Response response, int TYPE, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
-            if (isDebug()) {
-                StringBuffer buffer = new StringBuffer();
-                buffer.append(" \n url:").append(response.request().url())
-                        .append(" \n header: \n")
-                        .append(response.request().headers().toString())
-                        .append("status:")
-                        .append(status);
-                LogUtils.i(buffer.toString());
-            }
-            final String string = HttpUtils.getContent(notConvert,response.body().string());
+            final String string = HttpUtils.getContent(notConvert, response.body().string());
             if (status == 200) {
-                if (isDebug())
+                if (isDebug()) {
+                    LogUtils.i("\n status: " + status + " \n");
                     LogUtils.json(string);
+                }
                 Object o = mGson.fromJson(string, callBack.mType);
                 sendPostSuccessCallBack(o, callBack);
             } else if (status == 204) {

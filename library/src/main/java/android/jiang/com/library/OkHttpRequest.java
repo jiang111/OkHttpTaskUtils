@@ -37,6 +37,8 @@ import android.jiang.com.library.exception.UrlNotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.text.TextUtils;
 
+import com.apkfuns.logutils.LogUtils;
+
 import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -48,6 +50,15 @@ public class OkHttpRequest {
 
 
     public static void doJob(NetTaskListener ct, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
+        if (OkHttpTask.isDebug()) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(" \n url:").append(url)
+                    .append("\n params: \n")
+                    .append(params.toString())
+                    .append(" \n header: \n")
+                    .append(headers.toString());
+            LogUtils.i(buffer.toString());
+        }
         doNetTask(ct, url, params, callBack, tag, type, notConvert, headers);
 
     }
@@ -82,20 +93,20 @@ public class OkHttpRequest {
 
 
     private static void startLoadJob(String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobNormal(url, params, ret, key, type,notConvert, headers);
+        OkHttpTask.getInstance().doJobNormal(url, params, ret, key, type, notConvert, headers);
     }
 
 
     private static void startLoadJob(Activity act, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByActivity(new WeakReference<Activity>(act), url, params, ret, key, type,notConvert, headers);
+        OkHttpTask.getInstance().doJobByActivity(new WeakReference<Activity>(act), url, params, ret, key, type, notConvert, headers);
     }
 
     private static void startLoadJob(Fragment act, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByFragment(new WeakReference<Fragment>(act), url, params, ret, key, type,notConvert, headers);
+        OkHttpTask.getInstance().doJobByFragment(new WeakReference<Fragment>(act), url, params, ret, key, type, notConvert, headers);
     }
 
     private static void startLoadJob(Context context, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByContext(context, url, params, ret, key, type,notConvert, headers);
+        OkHttpTask.getInstance().doJobByContext(context, url, params, ret, key, type, notConvert, headers);
     }
 
     public static void downLoadFile(String url, String path, String fileName, DownLoadCallBack callBack, Object tag) {
