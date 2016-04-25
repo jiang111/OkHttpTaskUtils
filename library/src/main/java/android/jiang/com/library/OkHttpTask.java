@@ -379,19 +379,27 @@ public class OkHttpTask {
             int status = response.code();
             final String string = HttpUtils.getContent(notConvert, response.body().string());
             if (isDebug()) {
+                StringBuffer buffer = new StringBuffer();
                 try {
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append(" \n url:").append(response.request().url())
-                            .append("\n body: \n")
-                            .append(bodyToString(response.request()))
-                            .append(" \n header: \n")
+                    buffer.append(" \n url:").append(response.request().url());
+                    buffer.append(" \n header: \n")
                             .append(response.request().headers().toString())
                             .append("status:")
                             .append(status);
+
+                    if (TYPE == TYPE_POST) {
+                        try {
+                            buffer.append(" \n body: \n ")
+                                    .append(bodyToString(response.request()));
+                        } catch (Exception e) {
+
+                        }
+                    }
+
+                } catch (Exception e) {
+                } finally {
                     LogUtils.i(buffer.toString());
                     LogUtils.json(string);
-                } catch (Exception e) {
-                    LogUtils.i("parse failed");
                 }
             }
             if (status == 200) {
@@ -424,7 +432,7 @@ public class OkHttpTask {
     }
 
 
-    private static String bodyToString(final Request request){
+    private static String bodyToString(final Request request) {
 
         try {
             final Request copy = request.newBuilder().build();
