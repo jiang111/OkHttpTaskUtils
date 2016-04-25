@@ -387,6 +387,7 @@ public class OkHttpTask {
                             .append("status:")
                             .append(status);
                     LogUtils.i(buffer.toString());
+                    LogUtils.json(string);
                 } catch (Exception e) {
 
                 }
