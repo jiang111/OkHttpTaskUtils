@@ -380,12 +380,14 @@ public class OkHttpTask {
                 try {
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(" \n url:").append(response.request().url())
+                            .append("\n body: \n")
+                            .append(response.request().body().toString())
                             .append(" \n header: \n")
                             .append(response.request().headers().toString())
                             .append("status:")
                             .append(status);
                     LogUtils.i(buffer.toString());
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }
