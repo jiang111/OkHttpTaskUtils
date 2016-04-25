@@ -37,8 +37,6 @@ import android.jiang.com.library.exception.UrlNotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.text.TextUtils;
 
-import com.apkfuns.logutils.LogUtils;
-
 import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -50,15 +48,6 @@ public class OkHttpRequest {
 
 
     public static void doJob(NetTaskListener ct, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
-        if (OkHttpTask.isDebug()) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(" \n url:").append(url)
-                    .append("\n params: \n")
-                    .append(params.toString())
-                    .append(" \n header: \n")
-                    .append(headers.toString());
-            LogUtils.i(buffer.toString());
-        }
         doNetTask(ct, url, params, callBack, tag, type, notConvert, headers);
 
     }

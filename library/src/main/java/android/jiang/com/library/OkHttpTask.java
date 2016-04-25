@@ -378,8 +378,13 @@ public class OkHttpTask {
             final String string = HttpUtils.getContent(notConvert, response.body().string());
             if (status == 200) {
                 if (isDebug()) {
-                    LogUtils.i("\n status: " + status + " \n");
-                    LogUtils.json(string);
+                    StringBuffer buffer = new StringBuffer();
+                    buffer.append(" \n url:").append(response.request().url())
+                            .append(" \n header: \n")
+                            .append(response.request().headers().toString())
+                            .append("status:")
+                            .append(status);
+                    LogUtils.i(buffer.toString());
                 }
                 Object o = mGson.fromJson(string, callBack.mType);
                 sendPostSuccessCallBack(o, callBack);
