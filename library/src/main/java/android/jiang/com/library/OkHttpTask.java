@@ -60,6 +60,8 @@ import java.util.Map;
 import java.util.UnknownFormatFlagsException;
 import java.util.concurrent.TimeUnit;
 
+import okio.Buffer;
+
 
 /**
  * 网络请求的主体
@@ -381,7 +383,7 @@ public class OkHttpTask {
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(" \n url:").append(response.request().url())
                             .append("\n body: \n")
-                            .append(response.request().body().toString())
+                            .append(bodyToString(response.request()))
                             .append(" \n header: \n")
                             .append(response.request().headers().toString())
                             .append("status:")
@@ -389,7 +391,7 @@ public class OkHttpTask {
                     LogUtils.i(buffer.toString());
                     LogUtils.json(string);
                 } catch (Exception e) {
-
+                    LogUtils.i("parse failed");
                 }
             }
             if (status == 200) {
@@ -419,6 +421,19 @@ public class OkHttpTask {
         }
 
 
+    }
+
+
+    private static String bodyToString(final Request request){
+
+        try {
+            final Request copy = request.newBuilder().build();
+            final Buffer buffer = new Buffer();
+            copy.body().writeTo(buffer);
+            return buffer.readUtf8();
+        } catch (final IOException e) {
+            return "parse failed";
+        }
     }
 
     private void dealFailResponse(String msg, BaseCallBack callBack) {
