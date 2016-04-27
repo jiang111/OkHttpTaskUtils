@@ -58,6 +58,12 @@ public abstract class BaseCallBack<T> {
     public abstract void onSuccess(T t);  //成功
 
     /**
+     * 成功，并且返回string
+     * @param model
+     */
+    public abstract void onSuccessString(String model);
+
+    /**
      * 无数据， 只在get中用到
      *
      * @param ret 数据

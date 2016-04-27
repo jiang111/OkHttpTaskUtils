@@ -403,6 +403,7 @@ public class OkHttpTask {
                 }
             }
             if (status == 200) {
+                sendPostSuccessCallBackByString(string, callBack);
                 Object o = mGson.fromJson(string, callBack.mType);
                 sendPostSuccessCallBack(o, callBack);
             } else if (status == 204) {
@@ -429,6 +430,15 @@ public class OkHttpTask {
         }
 
 
+    }
+
+    private void sendPostSuccessCallBackByString(final String o, final BaseCallBack callBack) {
+        mDelivery.post(new Runnable() {
+            @Override
+            public void run() {
+                callBack.onSuccessString(o);
+            }
+        });
     }
 
 
