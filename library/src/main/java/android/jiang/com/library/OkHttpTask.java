@@ -37,6 +37,7 @@ import android.jiang.com.library.request.PostRequest;
 import android.jiang.com.library.request.PutRequest;
 import android.jiang.com.library.request.getRequest;
 import android.jiang.com.library.utils.HttpUtils;
+import android.jiang.com.library.utils.HttpsUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -59,6 +60,8 @@ import java.net.CookiePolicy;
 import java.util.Map;
 import java.util.UnknownFormatFlagsException;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLSocketFactory;
 
 import okio.Buffer;
 
@@ -134,6 +137,32 @@ public class OkHttpTask {
     public Gson getmGson() {
         return mGson;
     }
+
+
+    //************ 添加证书功能 ***********
+
+    /**
+     * for https-way authentication
+     *
+     * @param certificates
+     */
+    public void setCertificates(InputStream... certificates) {
+        SSLSocketFactory sslSocketFactory = HttpsUtils.getSslSocketFactory(certificates, null, null);
+        mOkHttpClient.setSslSocketFactory(sslSocketFactory);
+    }
+
+    /**
+     * for https mutual authentication
+     *
+     * @param certificates
+     * @param bksFile
+     * @param password
+     */
+    public void setCertificates(InputStream[] certificates, InputStream bksFile, String password) {
+       mOkHttpClient.setSslSocketFactory(HttpsUtils.getSslSocketFactory(certificates, bksFile, password));
+    }
+
+    //***********end*********
 
 
     public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
@@ -430,7 +459,6 @@ public class OkHttpTask {
 
 
     }
-
 
 
     private static String bodyToString(final Request request) {

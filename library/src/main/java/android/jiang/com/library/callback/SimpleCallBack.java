@@ -31,6 +31,7 @@ package android.jiang.com.library.callback;
 import com.squareup.okhttp.Callback;
 
 /**
+ * 这个回调用于 call.enqueue(back);  //加入队列方法的回调，其实可以不用的，直接用Callback 回调即可
  * Created by jiang on 15/10/19.
  */
 public abstract class SimpleCallBack implements Callback {
