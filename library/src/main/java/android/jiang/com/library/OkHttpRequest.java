@@ -29,8 +29,7 @@
 package android.jiang.com.library;
 
 import android.jiang.com.library.callback.BaseCallBack;
-import android.jiang.com.library.callback.DownLoadCallBack;
-import android.jiang.com.library.exception.UrlNotPermissionException;
+import android.jiang.com.library.exception.NotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.text.TextUtils;
 
@@ -56,7 +55,7 @@ public class OkHttpRequest {
         OkHttpTask.getInstance().filterData(obj, url, tag, params, callBack, headers, notConvert, type);
     }
 
-    public static void downLoadFile(String url, String path, String fileName, DownLoadCallBack callBack, Object tag) {
+    public static void downLoadFile(String url, String path, String fileName, BaseCallBack callBack, Object tag) {
         OkHttpTask.getInstance().doJobDownLoadFile(url, path, fileName, callBack, tag, null);
     }
 
@@ -75,6 +74,7 @@ public class OkHttpRequest {
         private String fileName;
         private int type;
         private boolean notConvert;
+        private BaseCallBack callBack;
 
         public Builder build() {
             return this;
@@ -160,39 +160,47 @@ public class OkHttpRequest {
 
         private boolean validateParams() {
             if (TextUtils.isEmpty(url) || !url.startsWith("http")) {
-                throw new UrlNotPermissionException("url不合法");
+                throw new NotPermissionException("url不合法");
+            }
+            if (callBack == null) {
+                throw new NotPermissionException("没有CallBack");
             }
             return true;
         }
 
-        public void post(BaseCallBack callBack) {
+        public void post(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 type = OkHttpTask.TYPE_POST;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_POST);
             }
         }
 
-        public void put(BaseCallBack callBack) {
+        public void put(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 type = OkHttpTask.TYPE_PUT;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_PUT);
             }
         }
 
-        public void delete(BaseCallBack callBack) {
+        public void delete(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 type = OkHttpTask.TYPE_DELETE;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_DELETE);
             }
         }
 
-        public void downLoad(DownLoadCallBack callBack) {
+        public void downLoad(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 downLoadFile(url, path, fileName, callBack, tag);
             }
         }
 
-        public void execute(BaseCallBack callBack) {
+        public void execute(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 doJob(ct, url, tag, params, callBack, headers, notConvert, type);
             }

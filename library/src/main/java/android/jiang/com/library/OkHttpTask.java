@@ -29,7 +29,6 @@ package android.jiang.com.library;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.jiang.com.library.request.DeleteRequest;
@@ -185,8 +184,6 @@ public class OkHttpTask {
 
     public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
 
-        if (!validateMethodParams(url, callBack, TYPE))
-            return;
         callBack.onBefore();
         doJob(url, params, tag, TYPE, new Callback() {
             @Override
@@ -274,44 +271,13 @@ public class OkHttpTask {
 
     }
 
-
-    public void doJobByContext(final Context context, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
-
-        if (context == null)
-            return;
-        if (!validateMethodParams(url, callBack, TYPE))
-            return;
-        Context ct = context.getApplicationContext();
-        callBack.onBefore();
-        if (!HttpUtils.isNetworkConnected(ct)) {
-            dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
-            return;
-        }
-        doJob(url, params, tag, TYPE, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-                dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, notConvert, callBack);
-
-            }
-        }, headers);
-    }
-
-
     public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
         }
-        if (!validateMethodParams(url, callBack, TYPE))
-            return;
+
         callBack.onBefore();
-        if (!HttpUtils.isNetworkConnected((Context) act.get().getActivity())) {
+        if (!HttpUtils.isNetworkConnected(act.get().getActivity())) {
             dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
             return;
         }
@@ -339,10 +305,9 @@ public class OkHttpTask {
         if (!canPassActivity(act)) {
             return;
         }
-        if (!validateMethodParams(url, callBack, TYPE))
-            return;
+
         callBack.onBefore();
-        if (!HttpUtils.isNetworkConnected((Context) act.get())) {
+        if (!HttpUtils.isNetworkConnected( act.get())) {
             dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
             return;
         }
@@ -389,17 +354,6 @@ public class OkHttpTask {
         return true;
 
     }
-
-    private static boolean validateMethodParams(String url, BaseCallBack callBack, int type) {
-        if (TextUtils.isEmpty(url))
-            return false;
-        if (callBack == null)
-            return false;
-        if (type != TYPE_GET && type != TYPE_POST && type != TYPE_PUT && type != TYPE_DELETE)
-            return false;
-        return true;
-    }
-
 
     private void doJob(final String url, Map<String, String> params, final Object tag, final int TYPE, Callback back, Map<String, String> headers) {
         Request request;

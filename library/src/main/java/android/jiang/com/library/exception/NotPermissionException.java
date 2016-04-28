@@ -31,14 +31,14 @@ package android.jiang.com.library.exception;
 /**
  * Created by jiang on 12/5/15.
  */
-public class UrlNotPermissionException extends RuntimeException {
+public class NotPermissionException extends RuntimeException {
 
     private static final long serialVersionUID = 110L;
 
-    public UrlNotPermissionException() {
+    public NotPermissionException() {
     }
 
-    public UrlNotPermissionException(String detailMessage) {
+    public NotPermissionException(String detailMessage) {
         super(detailMessage);
     }
 }
