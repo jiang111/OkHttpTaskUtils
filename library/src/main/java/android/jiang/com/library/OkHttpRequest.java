@@ -28,16 +28,12 @@
 
 package android.jiang.com.library;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.content.Context;
 import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.callback.DownLoadCallBack;
 import android.jiang.com.library.exception.UrlNotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.text.TextUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -46,56 +42,18 @@ import java.util.Map;
  */
 public class OkHttpRequest {
 
-
-    public static void doJob(NetTaskListener ct, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
-        doNetTask(ct, url, params, callBack, tag, type, notConvert, headers);
-
-    }
-
     /**
      * @param obj        一个用来引用的对象
      * @param url        url
      * @param params     需要传递的参数  get请求? 后面的参数也可以通过param传递
-     * @param ret        返回的回调
-     * @param key        唯一的key， 可以通过这个唯一的key来取消网络请求
+     * @param callBack   返回的回调
+     * @param tag        唯一的key， 可以通过这个唯一的key来取消网络请求
      * @param type       请求的类型
      * @param notConvert
      * @param headers    需要特殊处理的请求头
      */
-    public static void doNetTask(NetTaskListener obj, String url, Map<String, String> params, final BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-
-        if (obj == null) {
-            startLoadJob(url, params, ret, key, type, notConvert, headers);
-        } else if (obj instanceof Activity) {
-            startLoadJob((Activity) obj, url, params, ret, key, type, notConvert, headers);
-        } else if (obj instanceof Fragment) {
-            startLoadJob((Fragment) obj, url, params, ret, key, type, notConvert, headers);
-        } else if (obj instanceof Context) {
-            startLoadJob((Context) obj, url, params, ret, key, type, notConvert, headers);
-        } else {
-            startLoadJob(url, params, ret, key, type, notConvert, headers);
-        }
-    }
-
-
-    //*********************开始处理相关的任务**************************
-
-
-    private static void startLoadJob(String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobNormal(url, params, ret, key, type, notConvert, headers);
-    }
-
-
-    private static void startLoadJob(Activity act, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByActivity(new WeakReference<Activity>(act), url, params, ret, key, type, notConvert, headers);
-    }
-
-    private static void startLoadJob(Fragment act, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByFragment(new WeakReference<Fragment>(act), url, params, ret, key, type, notConvert, headers);
-    }
-
-    private static void startLoadJob(Context context, String url, Map<String, String> params, BaseCallBack ret, Object key, int type, boolean notConvert, Map<String, String> headers) {
-        OkHttpTask.getInstance().doJobByContext(context, url, params, ret, key, type, notConvert, headers);
+    public static void doJob(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
+        OkHttpTask.getInstance().filterData(obj, url, tag, params, callBack, headers, notConvert, type);
     }
 
     public static void downLoadFile(String url, String path, String fileName, DownLoadCallBack callBack, Object tag) {
@@ -135,6 +93,12 @@ public class OkHttpRequest {
             return this;
         }
 
+        /**
+         * true 则不需要进行string转换
+         *
+         * @param notConvert
+         * @return
+         */
         public Builder notConvert(boolean notConvert) {
             this.notConvert = notConvert;
             return this;

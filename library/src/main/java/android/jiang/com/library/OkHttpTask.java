@@ -31,7 +31,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.jiang.com.library.callback.BaseCallBack;
-import android.jiang.com.library.callback.SimpleCallBack;
+import android.jiang.com.library.listener.NetTaskListener;
 import android.jiang.com.library.request.DeleteRequest;
 import android.jiang.com.library.request.PostRequest;
 import android.jiang.com.library.request.PutRequest;
@@ -46,6 +46,7 @@ import com.apkfuns.logutils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -72,7 +73,6 @@ import okio.Buffer;
  */
 public class OkHttpTask {
 
-    private static final String TAG = "OkHttpTask";
     private static boolean isDebug;
 
     public static final int TYPE_GET = 30;  //get请求
@@ -97,15 +97,11 @@ public class OkHttpTask {
     final static class ERROR_OPTIONS {
         public static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
         public static final String EROR_REQUEST_ERROR = "请求失败,请重试";
-        public static final String EROR_REQUEST_404 = "暂无资源可用";
         public static final String EROR_REQUEST_500 = "服务器内部出错";
-        public static final String EROR_REQUEST_401 = "你的账号已被别人登录";
-        public static final String EROR_REQUEST_EMPTY = "暂无数据";
         public static final String EROR_REQUEST_JSONERROR = "Json解析出错";
         public static final String EROR_REQUEST_UNKNOWN = "未知错误";
         public static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
         public static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
-        public static final String EROR_REQUEST_NO_STATECODE = "服务器未返回状态码";
 
 
     }
@@ -159,10 +155,32 @@ public class OkHttpTask {
      * @param password
      */
     public void setCertificates(InputStream[] certificates, InputStream bksFile, String password) {
-       mOkHttpClient.setSslSocketFactory(HttpsUtils.getSslSocketFactory(certificates, bksFile, password));
+        mOkHttpClient.setSslSocketFactory(HttpsUtils.getSslSocketFactory(certificates, bksFile, password));
     }
 
     //***********end*********
+
+    /**
+     * @param obj        一个用来引用的对象
+     * @param url        url
+     * @param params     需要传递的参数  get请求? 后面的参数也可以通过param传递
+     * @param callBack   返回的回调
+     * @param tag        唯一的key， 可以通过这个唯一的key来取消网络请求
+     * @param type       请求的类型
+     * @param notConvert
+     * @param headers    需要特殊处理的请求头
+     */
+    public void filterData(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
+        if (obj == null) {
+            doJobNormal(url, params, callBack, tag, type, notConvert, headers);
+        } else if (obj instanceof Activity) {
+            doJobByActivity(new WeakReference<Activity>((Activity) obj), url, params, callBack, tag, type, notConvert, headers);
+        } else if (obj instanceof Fragment) {
+            doJobByFragment(new WeakReference<Fragment>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers);
+        } else {
+           doJobNormal(url, params, callBack, tag, type, notConvert, headers);
+        }
+    }
 
 
     public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
@@ -170,7 +188,7 @@ public class OkHttpTask {
         if (!validateMethodParams(url, callBack, TYPE))
             return;
         callBack.onBefore();
-        doJob(url, params, tag, TYPE, new SimpleCallBack() {
+        doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
@@ -191,10 +209,10 @@ public class OkHttpTask {
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(destFileDir) || callback == null || TextUtils.isEmpty(fileName))
             return;
         callback.onBefore();
-        doJob(url, null, tag, type, new SimpleCallBack() {
+        doJob(url, null, tag, type, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                dealDownLoadFileFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
+                failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
             }
 
             @Override
@@ -215,7 +233,7 @@ public class OkHttpTask {
                     if (!dir.exists()) {
                         boolean createDirSuccess = dir.mkdirs();
                         if (!createDirSuccess) {  //创建文件夹失败
-                            dealDownLoadFileFailResponse(ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
+                            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
                             return;
                         }
                     }
@@ -227,7 +245,7 @@ public class OkHttpTask {
                         long progress = totalLength * 100 / fileLongth;
 
                         if (lastProgress != progress) {
-                            sendProgressDownLoadCallback(progress, callback);
+                            progressCallBack(progress, callback);
                         }
                         lastProgress = progress;
 
@@ -235,11 +253,11 @@ public class OkHttpTask {
                     fos.flush();
                     //如果下载文件成功，第一个参数为文件的绝对路径
 
-                    sendSuccessDownLoadCallback("下载成功", callback);
+                    successCallBack("下载成功", callback);
                 } catch (IOException e) {
-                    dealDownLoadFileFailResponse(ERROR_OPTIONS.EROR_REQUEST_IO, callback);
+                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
                 } catch (Exception e) {
-                    dealDownLoadFileFailResponse(ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
+                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
                 } finally {
                     try {
                         if (is != null) is.close();
@@ -269,7 +287,7 @@ public class OkHttpTask {
             dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
             return;
         }
-        doJob(url, params, tag, TYPE, new SimpleCallBack() {
+        doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
 
@@ -297,7 +315,7 @@ public class OkHttpTask {
             dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
             return;
         }
-        doJob(url, params, tag, TYPE, new SimpleCallBack() {
+        doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 if (!canPassFragment(act))
@@ -329,7 +347,7 @@ public class OkHttpTask {
             return;
         }
 
-        doJob(url, params, tag, TYPE, new SimpleCallBack() {
+        doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
 
@@ -353,7 +371,7 @@ public class OkHttpTask {
     }
 
     private void dealNoNetResponse(String erorNonet, BaseCallBack callBack) {
-        sendFSCallBack(WS_State.OTHERS, erorNonet, callBack);
+        failCallBack(WS_State.OTHERS, erorNonet, callBack);
     }
 
     private static boolean canPassFragment(WeakReference<Fragment> act) {
@@ -383,7 +401,7 @@ public class OkHttpTask {
     }
 
 
-    private void doJob(final String url, Map<String, String> params, final Object tag, final int TYPE, SimpleCallBack back, Map<String, String> headers) {
+    private void doJob(final String url, Map<String, String> params, final Object tag, final int TYPE, Callback back, Map<String, String> headers) {
         Request request;
         if (TYPE == TYPE_POST) {
             request = PostRequest.buildPostRequest(url, params, tag, headers);  //拿到一个post的request
@@ -433,23 +451,23 @@ public class OkHttpTask {
             }
             if (status == 200) {
                 Object o = mGson.fromJson(string, callBack.mType);
-                sendPostSuccessCallBack(o, callBack);
+                successCallBack(o, callBack);
             } else if (status == 204) {
-                sendESCallBack(WS_State.NODATA, "暂无数据", callBack);
+                emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
             } else {
                 ws_ret o = mGson.fromJson(string, ws_ret.class);
                 if (TextUtils.isEmpty(o.getMsg())) {
-                    sendFSCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
+                    failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
                 } else {
-                    sendFSCallBack(status, o.getMsg(), callBack);
+                    failCallBack(status, o.getMsg(), callBack);
                 }
             }
         } catch (IOException e) {
-            sendFSCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callBack);
+            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callBack);
         } catch (com.google.gson.JsonParseException e) {
-            sendFSCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_JSONERROR, callBack);
+            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_JSONERROR, callBack);
         } catch (Exception e) {
-            sendFSCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callBack);
+            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callBack);
         } finally {
             try {
                 response.body().close();
@@ -474,44 +492,11 @@ public class OkHttpTask {
     }
 
     private void dealFailResponse(String msg, BaseCallBack callBack) {
-        sendFSCallBack(WS_State.OTHERS, msg, callBack);
-    }
-
-    private void dealDownLoadFileFailResponse(String erorRequestError, BaseCallBack callback) {
-        sendDownLoadFailedStringCallback(WS_State.OTHERS, erorRequestError, callback);
-    }
-
-    private void sendDownLoadFailedStringCallback(final int state, final String erorRequestError, final BaseCallBack callback) {
-        mDelivery.post(new Runnable() {
-            @Override
-            public void run() {
-                ws_ret ret = new ws_ret(state, erorRequestError);
-                callback.onFail(ret);
-                callback.onAfter();
-            }
-        });
-    }
-
-    private void sendSuccessDownLoadCallback(String successModel, BaseCallBack callback) {
-        sendSuccessDownLoadString(WS_State.SUCCESS, successModel, callback);
-    }
-
-    private void sendSuccessDownLoadString(final int state, final String successModel, final BaseCallBack callback) {
-        mDelivery.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onSuccess(successModel);
-                callback.onAfter();
-            }
-        });
+        failCallBack(WS_State.OTHERS, msg, callBack);
     }
 
 
-    private void sendProgressDownLoadCallback(long l, BaseCallBack callback) {
-        sendProgressDownLoadString(l, callback);
-    }
-
-    private void sendProgressDownLoadString(final long l, final BaseCallBack callback) {
+    private void progressCallBack(final long l, final BaseCallBack callback) {
         mDelivery.post(new Runnable() {
             @Override
             public void run() {
@@ -522,28 +507,17 @@ public class OkHttpTask {
     }
 
 
-    private void sendFSCallBack(final int state, final String msg, final BaseCallBack callback) {
-        sendErrorString(state, msg, callback);
-    }
-
-    private void sendErrorString(final int state, final String msg, final BaseCallBack callback) {
-
+    private void successCallBack(final Object o, final BaseCallBack ret) {
         mDelivery.post(new Runnable() {
             @Override
             public void run() {
-                ws_ret ret = new ws_ret(state, msg);
-                callback.onFail(ret);
-                callback.onAfter();
+                ret.onSuccess(o);
+                ret.onAfter();
             }
         });
     }
 
-    private void sendESCallBack(final int state, final String msg, final BaseCallBack callback) {
-
-        sendEmptyString(state, msg, callback);
-    }
-
-    private void sendEmptyString(final int state, final String msg, final BaseCallBack callback) {
+    private void emptyCallBack(final int state, final String msg, final BaseCallBack callback) {
         mDelivery.post(new Runnable() {
             @Override
             public void run() {
@@ -554,18 +528,13 @@ public class OkHttpTask {
         });
     }
 
-    private void sendPostSuccessCallBack(final Object object, final BaseCallBack ret) {
-
-        sendSuccessString(object, ret);
-
-    }
-
-    private void sendSuccessString(final Object o, final BaseCallBack ret) {
+    private void failCallBack(final int state, final String msg, final BaseCallBack callback) {
         mDelivery.post(new Runnable() {
             @Override
             public void run() {
-                ret.onSuccess(o);
-                ret.onAfter();
+                ws_ret ret = new ws_ret(state, msg);
+                callback.onFail(ret);
+                callback.onAfter();
             }
         });
     }
