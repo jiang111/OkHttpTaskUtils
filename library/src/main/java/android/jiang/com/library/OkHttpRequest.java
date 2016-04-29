@@ -153,48 +153,40 @@ public class OkHttpRequest {
 
         public void get(BaseCallBack c) {
             this.callBack = c;
+            type = OkHttpTask.TYPE_GET;
             if (validateParams()) {
-                type = OkHttpTask.TYPE_GET;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_GET);
             }
         }
 
-        private boolean validateParams() {
-            if (TextUtils.isEmpty(url) || !url.startsWith("http")) {
-                throw new NotPermissionException("url不合法");
-            }
-            if (callBack == null) {
-                throw new NotPermissionException("没有CallBack");
-            }
-            return true;
-        }
 
         public void post(BaseCallBack c) {
             this.callBack = c;
+            type = OkHttpTask.TYPE_POST;
             if (validateParams()) {
-                type = OkHttpTask.TYPE_POST;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_POST);
             }
         }
 
         public void put(BaseCallBack c) {
             this.callBack = c;
+            type = OkHttpTask.TYPE_PUT;
             if (validateParams()) {
-                type = OkHttpTask.TYPE_PUT;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_PUT);
             }
         }
 
         public void delete(BaseCallBack c) {
             this.callBack = c;
+            type = OkHttpTask.TYPE_DELETE;
             if (validateParams()) {
-                type = OkHttpTask.TYPE_DELETE;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_DELETE);
             }
         }
 
         public void downLoad(BaseCallBack c) {
             this.callBack = c;
+            type = OkHttpTask.TYPE_GET;
             if (validateParams()) {
                 downLoadFile(url, path, fileName, callBack, tag);
             }
@@ -207,6 +199,18 @@ public class OkHttpRequest {
             }
         }
 
+        private boolean validateParams() {
+            if (TextUtils.isEmpty(url) || !url.startsWith("http")) {
+                throw new NotPermissionException("url不合法");
+            }
+            if (type != OkHttpTask.TYPE_GET && type != OkHttpTask.TYPE_POST && type != OkHttpTask.TYPE_PUT && type != OkHttpTask.TYPE_DELETE) {
+                throw new NotPermissionException("请先设置请求类型 支持 get,post,put,delete");
+            }
+            if (callBack == null) {
+                throw new NotPermissionException("没有CallBack");
+            }
+            return true;
+        }
 
     }
 
