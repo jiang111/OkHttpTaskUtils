@@ -151,7 +151,8 @@ public class OkHttpRequest {
         }
 
 
-        public void get(BaseCallBack callBack) {
+        public void get(BaseCallBack c) {
+            this.callBack = c;
             if (validateParams()) {
                 type = OkHttpTask.TYPE_GET;
                 doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_GET);
