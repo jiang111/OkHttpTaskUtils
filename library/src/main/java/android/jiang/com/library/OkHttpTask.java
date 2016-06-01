@@ -50,6 +50,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,6 +75,7 @@ import okio.Buffer;
 public class OkHttpTask {
 
     private static boolean isDebug;
+    private static int exitLoginCode = -1;
 
     public static final int TYPE_GET = 30;  //get请求
     public static final int TYPE_POST = 60; // post请求
@@ -85,8 +88,14 @@ public class OkHttpTask {
     private Gson mGson;         //解析json的工具类
     private static final int timeoutMs = 60;
 
-    public void initDebugModel(boolean isdebug) {
+    public OkHttpTask initDebugModel(boolean isdebug) {
         isDebug = isdebug;
+        return this;
+    }
+
+    public OkHttpTask initExitLoginCode(int code) {
+        exitLoginCode = code;
+        return this;
     }
 
     public static boolean isDebug() {
@@ -97,6 +106,7 @@ public class OkHttpTask {
         public static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
         public static final String EROR_REQUEST_ERROR = "请求失败,请重试";
         public static final String EROR_REQUEST_500 = "服务器内部出错";
+        public static final String EROR_REQUEST_EXITLOGIN = "请重新登录";
         public static final String EROR_REQUEST_JSONERROR = "Json解析出错";
         public static final String EROR_REQUEST_UNKNOWN = "未知错误";
         public static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
@@ -177,7 +187,7 @@ public class OkHttpTask {
         } else if (obj instanceof Fragment) {
             doJobByFragment(new WeakReference<Fragment>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers);
         } else {
-           doJobNormal(url, params, callBack, tag, type, notConvert, headers);
+            doJobNormal(url, params, callBack, tag, type, notConvert, headers);
         }
     }
 
@@ -307,7 +317,7 @@ public class OkHttpTask {
         }
 
         callBack.onBefore();
-        if (!HttpUtils.isNetworkConnected( act.get())) {
+        if (!HttpUtils.isNetworkConnected(act.get())) {
             dealNoNetResponse(ERROR_OPTIONS.EROR_NONET, callBack);
             return;
         }
@@ -378,42 +388,47 @@ public class OkHttpTask {
     private void dealSuccessResponse(Response response, int TYPE, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
-            final String string = HttpUtils.getContent(notConvert, response.body().string());
-            if (isDebug()) {
-                StringBuffer buffer = new StringBuffer();
-                try {
-                    buffer.append(" \n url:").append(response.request().url());
-                    buffer.append(" \n header: \n")
-                            .append(response.request().headers().toString())
-                            .append("status:")
-                            .append(status);
-
-                    if (TYPE == TYPE_POST) {
-                        try {
-                            buffer.append(" \n body: \n ")
-                                    .append(bodyToString(response.request()));
-                        } catch (Exception e) {
-
-                        }
-                    }
-
-                } catch (Exception e) {
-                } finally {
-                    LogUtils.i(buffer.toString());
-                    LogUtils.json(string);
-                }
-            }
-            if (status == 200) {
-                Object o = mGson.fromJson(string, callBack.mType);
-                successCallBack(o, callBack);
-            } else if (status == 204) {
-                emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
+            if (status == exitLoginCode) {
+                EventBus.getDefault().post(exitLoginCode);
+                failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
             } else {
-                ws_ret o = mGson.fromJson(string, ws_ret.class);
-                if (TextUtils.isEmpty(o.getMsg())) {
-                    failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
+                final String string = HttpUtils.getContent(notConvert, response.body().string());
+                if (isDebug()) {
+                    StringBuffer buffer = new StringBuffer();
+                    try {
+                        buffer.append(" \n url:").append(response.request().url());
+                        buffer.append(" \n header: \n")
+                                .append(response.request().headers().toString())
+                                .append("status:")
+                                .append(status);
+
+                        if (TYPE == TYPE_POST) {
+                            try {
+                                buffer.append(" \n body: \n ")
+                                        .append(bodyToString(response.request()));
+                            } catch (Exception e) {
+
+                            }
+                        }
+
+                    } catch (Exception e) {
+                    } finally {
+                        LogUtils.i(buffer.toString());
+                        LogUtils.json(string);
+                    }
+                }
+                if (status == 200) {
+                    Object o = mGson.fromJson(string, callBack.mType);
+                    successCallBack(o, callBack);
+                } else if (status == 204) {
+                    emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
                 } else {
-                    failCallBack(status, o.getMsg(), callBack);
+                    ws_ret o = mGson.fromJson(string, ws_ret.class);
+                    if (TextUtils.isEmpty(o.getMsg())) {
+                        failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
+                    } else {
+                        failCallBack(status, o.getMsg(), callBack);
+                    }
                 }
             }
         } catch (IOException e) {
