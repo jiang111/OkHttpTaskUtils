@@ -425,18 +425,18 @@ public class OkHttpTask {
                 } else {
                     ws_ret o = mGson.fromJson(string, ws_ret.class);
                     if (TextUtils.isEmpty(o.getMsg())) {
-                        failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
+                        failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
                     } else {
                         failCallBack(status, o.getMsg(), callBack);
                     }
                 }
             }
-        } catch (IOException e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callBack);
-        } catch (com.google.gson.JsonParseException e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_JSONERROR, callBack);
         } catch (Exception e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callBack);
+            e.printStackTrace();
+            if (isDebug) {
+                LogUtils.d("exception info: " + e.toString());
+            }
+            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
         } finally {
             try {
                 response.body().close();
