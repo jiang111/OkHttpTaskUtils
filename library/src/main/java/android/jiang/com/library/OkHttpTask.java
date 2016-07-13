@@ -225,55 +225,59 @@ public class OkHttpTask {
             @Override
             public void onResponse(Response response) throws IOException {
 
-                FileOutputStream fos = null;
-                InputStream is = null;
-                try {
-                    byte[] buf = new byte[2048];
+                if(response.code() == 200) {
+                    FileOutputStream fos = null;
+                    InputStream is = null;
+                    try {
+                        byte[] buf = new byte[2048];
 
-                    is = response.body().byteStream();
-                    long fileLongth = (int) response.body().contentLength();
-                    int len = 0;
-                    long totalLength = 0;
-                    long lastProgress = -1;
+                        is = response.body().byteStream();
+                        long fileLongth = (int) response.body().contentLength();
+                        int len = 0;
+                        long totalLength = 0;
+                        long lastProgress = -1;
 
-                    File dir = new File(destFileDir);
-                    if (!dir.exists()) {
-                        boolean createDirSuccess = dir.mkdirs();
-                        if (!createDirSuccess) {  //创建文件夹失败
-                            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
-                            return;
+                        File dir = new File(destFileDir);
+                        if (!dir.exists()) {
+                            boolean createDirSuccess = dir.mkdirs();
+                            if (!createDirSuccess) {  //创建文件夹失败
+                                failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
+                                return;
+                            }
+                        }
+                        File file = new File(dir, fileName);
+                        fos = new FileOutputStream(file);
+                        while ((len = is.read(buf)) != -1) {
+                            fos.write(buf, 0, len);
+                            totalLength += len;
+                            long progress = totalLength * 100 / fileLongth;
+
+                            if (lastProgress != progress) {
+                                progressCallBack(progress, callback);
+                            }
+                            lastProgress = progress;
+
+                        }
+                        fos.flush();
+                        //如果下载文件成功，第一个参数为文件的绝对路径
+
+                        successCallBack("下载成功", callback);
+                    } catch (IOException e) {
+                        failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
+                    } catch (Exception e) {
+                        failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
+                    } finally {
+                        try {
+                            if (is != null) is.close();
+                        } catch (IOException e) {
+                        }
+                        try {
+                            if (fos != null) fos.close();
+                        } catch (IOException e) {
                         }
                     }
-                    File file = new File(dir, fileName);
-                    fos = new FileOutputStream(file);
-                    while ((len = is.read(buf)) != -1) {
-                        fos.write(buf, 0, len);
-                        totalLength += len;
-                        long progress = totalLength * 100 / fileLongth;
-
-                        if (lastProgress != progress) {
-                            progressCallBack(progress, callback);
-                        }
-                        lastProgress = progress;
-
-                    }
-                    fos.flush();
-                    //如果下载文件成功，第一个参数为文件的绝对路径
-
-                    successCallBack("下载成功", callback);
-                } catch (IOException e) {
-                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
-                } catch (Exception e) {
-                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
-                } finally {
-                    try {
-                        if (is != null) is.close();
-                    } catch (IOException e) {
-                    }
-                    try {
-                        if (fos != null) fos.close();
-                    } catch (IOException e) {
-                    }
+                }else {
+                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
                 }
             }
         }, headers);
