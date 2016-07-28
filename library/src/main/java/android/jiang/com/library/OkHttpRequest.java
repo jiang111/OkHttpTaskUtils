@@ -59,6 +59,10 @@ public class OkHttpRequest {
         OkHttpTask.getInstance().doJobDownLoadFile(url, path, fileName, callBack, tag, null);
     }
 
+    public static void uploadFile(String url, Map<String, String> headers, String path, BaseCallBack callBack, Object tag) {
+        OkHttpTask.getInstance().uploadFile(url, headers, path, callBack, tag);
+    }
+
     private static void cancel(Object tag) {
         OkHttpTask.getInstance().cancelTask(tag);
     }
@@ -196,6 +200,20 @@ public class OkHttpRequest {
             this.callBack = c;
             if (validateParams()) {
                 doJob(ct, url, tag, params, callBack, headers, notConvert, type);
+            }
+        }
+
+        /**
+         * 上传文件必传
+         * url,path,header(用来验证),callBac
+         *
+         * @param c
+         */
+        public void upload(BaseCallBack c) {
+            this.callBack = c;
+            type = OkHttpTask.TYPE_POST;
+            if (validateParams()) {
+                uploadFile(url, headers, path, callBack, tag);
             }
         }
 

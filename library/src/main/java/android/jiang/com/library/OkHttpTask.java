@@ -31,9 +31,11 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.listener.NetTaskListener;
+import android.jiang.com.library.request.CountingRequestBody;
 import android.jiang.com.library.request.DeleteRequest;
 import android.jiang.com.library.request.PostRequest;
 import android.jiang.com.library.request.PutRequest;
+import android.jiang.com.library.request.UploadRequest;
 import android.jiang.com.library.request.getRequest;
 import android.jiang.com.library.utils.HttpUtils;
 import android.jiang.com.library.utils.HttpsUtils;
@@ -46,8 +48,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import org.greenrobot.eventbus.EventBus;
@@ -210,6 +214,60 @@ public class OkHttpTask {
         }, headers);
     }
 
+    /**
+     * 上传文件
+     *
+     * @param url      url
+     * @param headers  验证
+     * @param path     文件全路径
+     * @param callBack 回调
+     * @param tag      tag
+     */
+    public void uploadFile(String url, Map<String, String> headers, String path, final BaseCallBack callBack, Object tag) {
+        File file = new File(path);
+        if (isDebug()) {
+            LogUtils.i("开始上传文件 file: " + file.toString());
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), file);
+        CountingRequestBody countingRequestBody = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
+            @Override
+            public void onRequestProgress(final long bytesWritten, final long contentLength) {
+                long progress = bytesWritten * 100 / contentLength;
+                if (isDebug()) {
+                    LogUtils.i("上传文件中... progress: " + progress + "%");
+                }
+                progressCallBack(progress, callBack);
+            }
+        });
+
+        final Call call = mOkHttpClient.newCall(UploadRequest.buildPutRequest(url, headers, tag, countingRequestBody));
+        call.enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Request request, IOException e) {
+                failCallBack(303, "上传失败,请重试", callBack);
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                int code = response.code();
+                if (response.code() == 200) {
+                    successCallBack("上传成功", callBack);
+                } else {
+                    String msg = response.message();
+                    if (TextUtils.isEmpty(msg)) {
+                        msg = "上传失败,请重试";
+                    }
+                    failCallBack(code, msg, callBack);
+                }
+
+            }
+        });
+
+
+    }
+
+
     public void doJobDownLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
 
         int type = TYPE_GET;
@@ -225,7 +283,7 @@ public class OkHttpTask {
             @Override
             public void onResponse(Response response) throws IOException {
 
-                if(response.code() == 200) {
+                if (response.code() == 200) {
                     FileOutputStream fos = null;
                     InputStream is = null;
                     try {
@@ -276,7 +334,7 @@ public class OkHttpTask {
                         } catch (IOException e) {
                         }
                     }
-                }else {
+                } else {
                     failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
                 }
             }
@@ -392,34 +450,37 @@ public class OkHttpTask {
     private void dealSuccessResponse(Response response, int TYPE, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
+            if (isDebug()) {
+                StringBuffer buffer = new StringBuffer();
+                try {
+                    buffer.append(" \n url:").append(response.request().url());
+                    buffer.append(" \n header: \n")
+                            .append(response.request().headers().toString())
+                            .append("status:")
+                            .append(status);
+
+                    if (TYPE == TYPE_POST) {
+                        try {
+                            buffer.append(" \n body: \n ")
+                                    .append(bodyToString(response.request()));
+                        } catch (Exception e) {
+
+                        }
+                    }
+
+                } catch (Exception e) {
+                } finally {
+                    LogUtils.i(buffer.toString());
+                }
+            }
             if (status == exitLoginCode) {
                 EventBus.getDefault().post(exitLoginCode);
                 failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
             } else {
                 final String string = HttpUtils.getContent(notConvert, response.body().string());
                 if (isDebug()) {
-                    StringBuffer buffer = new StringBuffer();
-                    try {
-                        buffer.append(" \n url:").append(response.request().url());
-                        buffer.append(" \n header: \n")
-                                .append(response.request().headers().toString())
-                                .append("status:")
-                                .append(status);
+                    LogUtils.json(string);
 
-                        if (TYPE == TYPE_POST) {
-                            try {
-                                buffer.append(" \n body: \n ")
-                                        .append(bodyToString(response.request()));
-                            } catch (Exception e) {
-
-                            }
-                        }
-
-                    } catch (Exception e) {
-                    } finally {
-                        LogUtils.i(buffer.toString());
-                        LogUtils.json(string);
-                    }
                 }
                 if (status == 200) {
                     Object o = mGson.fromJson(string, callBack.mType);
