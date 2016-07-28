@@ -33,7 +33,9 @@ import android.jiang.com.library.exception.NotPermissionException;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,8 +61,8 @@ public class OkHttpRequest {
         OkHttpTask.getInstance().doJobDownLoadFile(url, path, fileName, callBack, tag, null);
     }
 
-    public static void uploadFile(String url, Map<String, String> headers, String path, BaseCallBack callBack, Object tag) {
-        OkHttpTask.getInstance().uploadFile(url, headers, path, callBack, tag);
+    public static void uploadFile(String url, Map<String, String> headers, List<String> files, BaseCallBack callBack, Object tag) {
+        OkHttpTask.getInstance().uploadFile(url, headers, files, callBack, tag);
     }
 
     private static void cancel(Object tag) {
@@ -74,6 +76,7 @@ public class OkHttpRequest {
         private Object tag;
         private Map<String, String> headers;
         private Map<String, String> params;
+        private List<String> files;
         private String path;
         private String fileName;
         private int type;
@@ -110,6 +113,21 @@ public class OkHttpRequest {
 
         public Builder url(String url) {
             this.url = url;
+            return this;
+        }
+
+        public Builder files(List<String> files) {
+            if (files == null)
+                files = new ArrayList<>();
+            files.addAll(files);
+            return this;
+
+        }
+
+        public Builder file(String file) {
+            if (files == null)
+                files = new ArrayList<>();
+            files.add(file);
             return this;
         }
 
@@ -205,7 +223,7 @@ public class OkHttpRequest {
 
         /**
          * 上传文件必传
-         * url,path,header(用来验证),callBac
+         * url,files,header(用来验证),callBack
          *
          * @param c
          */
@@ -213,7 +231,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_POST;
             if (validateParams()) {
-                uploadFile(url, headers, path, callBack, tag);
+                uploadFile(url, headers, files, callBack, tag);
             }
         }
 

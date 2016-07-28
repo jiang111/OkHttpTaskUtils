@@ -17,7 +17,6 @@ public class UploadRequest {
 
     public static Request buildPutRequest(String url, Map<String, String> headers, Object tab, RequestBody requestBody) {
 
-
         Request.Builder reqBuilder = new Request.Builder();
         reqBuilder.post(requestBody).url(url);
         reqBuilder.tag(tab);

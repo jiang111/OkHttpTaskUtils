@@ -49,6 +49,7 @@ import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -63,6 +64,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.List;
 import java.util.Map;
 import java.util.UnknownFormatFlagsException;
 import java.util.concurrent.TimeUnit;
@@ -219,28 +221,46 @@ public class OkHttpTask {
      *
      * @param url      url
      * @param headers  验证
-     * @param path     文件全路径
      * @param callBack 回调
      * @param tag      tag
      */
-    public void uploadFile(String url, Map<String, String> headers, String path, final BaseCallBack callBack, Object tag) {
-        File file = new File(path);
-        if (isDebug()) {
-            LogUtils.i("开始上传文件 file: " + file.toString());
-        }
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), file);
-        CountingRequestBody countingRequestBody = new CountingRequestBody(requestBody, new CountingRequestBody.Listener() {
-            @Override
-            public void onRequestProgress(final long bytesWritten, final long contentLength) {
-                long progress = bytesWritten * 100 / contentLength;
-                if (isDebug()) {
-                    LogUtils.i("上传文件中... progress: " + progress + "%");
-                }
-                progressCallBack(progress, callBack);
-            }
-        });
+    public void uploadFile(String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
 
-        final Call call = mOkHttpClient.newCall(UploadRequest.buildPutRequest(url, headers, tag, countingRequestBody));
+        MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
+        if (files != null && files.size() > 0) {
+            final long[] allProgress = {0};
+            final long[] allProgressTemp = {0};
+
+            final int fileSize = files.size();
+            for (int i = 0; i < fileSize; i++) {
+                File file = new File(files.get(i));
+
+                CountingRequestBody countingRequestBody = new CountingRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), file), new CountingRequestBody.Listener() {
+                    @Override
+                    public void onRequestProgress(final long bytesWritten, final long contentLength) {
+                        long progress = bytesWritten * 100 / contentLength;
+                        allProgress[0] += progress;
+                        if (allProgressTemp[0] == allProgress[0]) {
+                            return;
+                        }
+                        allProgressTemp[0] = allProgress[0];
+                        if (isDebug()) {
+                            LogUtils.i("上传文件中... progress: " + progress + "%");
+                        }
+                        progressCallBack(allProgress[0] / fileSize, callBack);
+                    }
+                });
+                builder.addFormDataPart("upload", null, countingRequestBody);
+                if (isDebug()) {
+                    LogUtils.i("开始上传文件 file: " + file.toString());
+                }
+            }
+        } else {
+            failCallBack(303, "没有文件可上传", callBack);
+            return;
+        }
+
+        final Call call = mOkHttpClient.newCall(UploadRequest.buildPutRequest(url, headers, tag, builder.build()));
         call.enqueue(new Callback() {
 
             @Override
