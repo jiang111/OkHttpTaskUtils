@@ -7,24 +7,21 @@ okhttp封装的网络请求
 
 用法: <br />
 * gradle: <br />
-```
-compile 'com.jiang.android.okhttptask:library:1.0.2'
-```
+Step 1. Add the JitPack repository to your build file
 
-* Maven: <br />
+Add it in your root build.gradle at the end of repositories:
 ```
-<dependency>
-  <groupId>com.jiang.android.okhttptask</groupId>
-  <artifactId>library</artifactId>
-  <version>1.0.2</version>
-  <type>pom</type>
-</dependency>
+	allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	}
 ```
-* Ivy:  <br />
-```
-<dependency org='com.jiang.android.okhttptask' name='library' rev='1.0.2'>
-  <artifact name='$AID' ext='pom'></artifact>
-</dependency>
-```
+Step 2. Add the dependency
 
-
+```
+	dependencies {
+	        compile 'com.github.jiang111:OkHttpTaskUtils:2.1'
+	}
+```
