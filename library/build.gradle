@@ -5,12 +5,11 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 23
-        versionCode 23
-        versionName "1.2.3"
+        versionCode 1
+        versionName "1.0"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -25,5 +24,4 @@ dependencies {
     compile 'com.google.code.gson:gson:+'
     compile 'com.apkfuns.logutils:library:1.0.6'
     provided 'org.greenrobot:eventbus:3.0.0'
-
 }
