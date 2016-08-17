@@ -2,7 +2,7 @@
 [![](https://jitpack.io/v/jiang111/OkHttpTaskUtils.svg)](https://jitpack.io/#jiang111/OkHttpTaskUtils)
  <br />
 初始化配置：<br />
- OkHttpTask.getInstance().initDebugModel(BuildConfig.ISDEBUG);
+ OkHttpTask.getInstance().initDebugModel(BuildConfig.DEBUG);
 
 
 用法: <br />
