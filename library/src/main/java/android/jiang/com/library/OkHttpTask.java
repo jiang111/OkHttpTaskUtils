@@ -82,12 +82,11 @@ public class OkHttpTask {
 
     private static boolean isDebug;
     private static int exitLoginCode = -1;
-
-    public static final int TYPE_GET = 30;  //get请求
-    public static final int TYPE_POST = 60; // post请求
-    public static final int TYPE_PUT = 70; // post请求
-    public static final int TYPE_DELETE = 90; // delete请求
-    private static final long HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
+    protected static final int TYPE_GET = 30;  //get请求
+    protected static final int TYPE_POST = 60; // post请求
+    protected static final int TYPE_PUT = 70; // post请求
+    protected static final int TYPE_DELETE = 90; // delete请求
+//    private static final long HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;   //发送到主线程需要的handler
@@ -104,19 +103,17 @@ public class OkHttpTask {
         return this;
     }
 
-    public static boolean isDebug() {
+    private static boolean isDebug() {
         return isDebug;
     }
 
     final static class ERROR_OPTIONS {
-        public static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
-        public static final String EROR_REQUEST_ERROR = "请求失败,请重试";
-        public static final String EROR_REQUEST_500 = "服务器内部出错";
-        public static final String EROR_REQUEST_EXITLOGIN = "请重新登录";
-        public static final String EROR_REQUEST_JSONERROR = "Json解析出错";
-        public static final String EROR_REQUEST_UNKNOWN = "未知错误";
-        public static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
-        public static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
+        private static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
+        private static final String EROR_REQUEST_ERROR = "请求失败,请重试";
+        private static final String EROR_REQUEST_EXITLOGIN = "请重新登录";
+        private static final String EROR_REQUEST_UNKNOWN = "未知错误";
+        private static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
+        private static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
 
 
     }
@@ -155,7 +152,7 @@ public class OkHttpTask {
     /**
      * for https-way authentication
      *
-     * @param certificates
+     * @param certificates 证书流
      */
     public void setCertificates(InputStream... certificates) {
         SSLSocketFactory sslSocketFactory = HttpsUtils.getSslSocketFactory(certificates, null, null);
@@ -164,10 +161,6 @@ public class OkHttpTask {
 
     /**
      * for https mutual authentication
-     *
-     * @param certificates
-     * @param bksFile
-     * @param password
      */
     public void setCertificates(InputStream[] certificates, InputStream bksFile, String password) {
         mOkHttpClient.setSslSocketFactory(HttpsUtils.getSslSocketFactory(certificates, bksFile, password));
@@ -182,23 +175,23 @@ public class OkHttpTask {
      * @param callBack   返回的回调
      * @param tag        唯一的key， 可以通过这个唯一的key来取消网络请求
      * @param type       请求的类型
-     * @param notConvert
+     * @param notConvert 是否转换
      * @param headers    需要特殊处理的请求头
      */
-    public void filterData(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
+    void filterData(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
         if (obj == null) {
             doJobNormal(url, params, callBack, tag, type, notConvert, headers);
         } else if (obj instanceof Activity) {
-            doJobByActivity(new WeakReference<Activity>((Activity) obj), url, params, callBack, tag, type, notConvert, headers);
+            doJobByActivity(new WeakReference<>((Activity) obj), url, params, callBack, tag, type, notConvert, headers);
         } else if (obj instanceof Fragment) {
-            doJobByFragment(new WeakReference<Fragment>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers);
+            doJobByFragment(new WeakReference<>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers);
         } else {
             doJobNormal(url, params, callBack, tag, type, notConvert, headers);
         }
     }
 
 
-    public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
 
         callBack.onBefore();
         doJob(url, params, tag, TYPE, new Callback() {
@@ -224,7 +217,7 @@ public class OkHttpTask {
      * @param callBack 回调
      * @param tag      tag
      */
-    public void uploadFile(String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
+    void uploadFile(String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
 
         MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
         if (files != null && files.size() > 0) {
@@ -288,7 +281,7 @@ public class OkHttpTask {
     }
 
 
-    public void doJobDownLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
+    void doJobDownLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
 
         int type = TYPE_GET;
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(destFileDir) || callback == null || TextUtils.isEmpty(fileName))
@@ -311,7 +304,7 @@ public class OkHttpTask {
 
                         is = response.body().byteStream();
                         long fileLongth = (int) response.body().contentLength();
-                        int len = 0;
+                        int len;
                         long totalLength = 0;
                         long lastProgress = -1;
 
@@ -348,10 +341,12 @@ public class OkHttpTask {
                         try {
                             if (is != null) is.close();
                         } catch (IOException e) {
+                            e.printStackTrace();
                         }
                         try {
                             if (fos != null) fos.close();
                         } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 } else {
@@ -363,7 +358,7 @@ public class OkHttpTask {
 
     }
 
-    public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
         }
@@ -393,7 +388,7 @@ public class OkHttpTask {
     }
 
 
-    public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassActivity(act)) {
             return;
         }
@@ -432,18 +427,12 @@ public class OkHttpTask {
     }
 
     private static boolean canPassFragment(WeakReference<Fragment> act) {
-        if (act == null || act.get() == null || !act.get().isAdded() || act.get().isDetached()) {
-            return false;
-        }
-        return true;
+        return act != null && act.get() != null && act.get().isAdded() && !act.get().isDetached();
 
     }
 
     private static boolean canPassActivity(WeakReference<Activity> act) {
-        if (act == null || act.get() == null || act.get().isFinishing()) {
-            return false;
-        }
-        return true;
+        return act != null && act.get() != null && act.get().isFinishing();
 
     }
 
@@ -471,27 +460,26 @@ public class OkHttpTask {
         try {
             int status = response.code();
             if (isDebug()) {
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 try {
                     buffer.append(" \n url:").append(response.request().url());
                     buffer.append(" \n header: \n")
                             .append(response.request().headers().toString())
                             .append("status:")
                             .append(status);
-
                     if (TYPE == TYPE_POST) {
-                        try {
-                            buffer.append(" \n body: \n ")
-                                    .append(bodyToString(response.request()));
-                        } catch (Exception e) {
-
-                        }
+                        buffer.append(" \n body: \n ").append(bodyToString(response.request()));
+                    }
+                } catch (Exception e) {
+                    if (isDebug()) {
+                        LogUtils.d("print success response exception: " + e.toString());
                     }
 
-                } catch (Exception e) {
                 } finally {
                     LogUtils.i(buffer.toString());
+
                 }
+
             }
             if (status == exitLoginCode) {
                 EventBus.getDefault().post(exitLoginCode);
@@ -526,6 +514,9 @@ public class OkHttpTask {
             try {
                 response.body().close();
             } catch (IOException e) {
+                if (isDebug) {
+                    LogUtils.d("解析Body失败: " + e.toString());
+                }
             }
         }
 
@@ -598,6 +589,10 @@ public class OkHttpTask {
         try {
             mOkHttpClient.cancel(key);
         } catch (Exception e) {
+            if (isDebug()) {
+                LogUtils.d("cancel task error: " + e.toString());
+
+            }
 
         }
     }
