@@ -22,6 +22,6 @@ Step 2. Add the dependency
 
 ```
 	dependencies {
-	        compile 'com.github.jiang111:OkHttpTaskUtils:2.1'
+	        compile 'com.github.jiang111:OkHttpTaskUtils:2.2'
 	}
 ```
