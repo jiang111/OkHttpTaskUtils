@@ -82,10 +82,10 @@ public class OkHttpTask {
 
     private static boolean isDebug;
     private static int exitLoginCode = -1;
-    protected static final int TYPE_GET = 30;  //get请求
-    protected static final int TYPE_POST = 60; // post请求
-    protected static final int TYPE_PUT = 70; // post请求
-    protected static final int TYPE_DELETE = 90; // delete请求
+    public static final int TYPE_GET = 30;  //get请求
+    public static final int TYPE_POST = 60; // post请求
+    public static final int TYPE_PUT = 70; // post请求
+    public static final int TYPE_DELETE = 90; // delete请求
     //    private static final long HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
