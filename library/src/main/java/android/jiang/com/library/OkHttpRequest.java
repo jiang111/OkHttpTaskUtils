@@ -117,9 +117,9 @@ public class OkHttpRequest {
         }
 
         public Builder files(List<String> files) {
-            if (files == null)
-                files = new ArrayList<>();
-            files.addAll(files);
+            if (this.files == null)
+                this.files = new ArrayList<>();
+            this.files.addAll(files);
             return this;
 
         }

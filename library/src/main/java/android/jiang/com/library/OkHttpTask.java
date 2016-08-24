@@ -86,7 +86,7 @@ public class OkHttpTask {
     protected static final int TYPE_POST = 60; // post请求
     protected static final int TYPE_PUT = 70; // post请求
     protected static final int TYPE_DELETE = 90; // delete请求
-//    private static final long HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
+    //    private static final long HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;   //发送到主线程需要的handler
@@ -209,6 +209,8 @@ public class OkHttpTask {
         }, headers);
     }
 
+    private static final String TAG = "OkHttpTask";
+
     /**
      * 上传文件
      *
@@ -221,29 +223,31 @@ public class OkHttpTask {
 
         MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
         if (files != null && files.size() > 0) {
-            final long[] allProgress = {0};
-            final long[] allProgressTemp = {0};
-
             final int fileSize = files.size();
+
+            final long fileProgress[] = new long[fileSize];
             for (int i = 0; i < fileSize; i++) {
-                File file = new File(files.get(i));
+                final File file = new File(files.get(i));
 
                 CountingRequestBody countingRequestBody = new CountingRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), file), new CountingRequestBody.Listener() {
                     @Override
-                    public void onRequestProgress(final long bytesWritten, final long contentLength) {
+                    public void onRequestProgress(final long bytesWritten, final long contentLength, final int position) {
                         long progress = bytesWritten * 100 / contentLength;
-                        allProgress[0] += progress;
-                        if (allProgressTemp[0] == allProgress[0]) {
-                            return;
+                        if (progress < 95 && progress - fileProgress[position] < 4)
+                            return; //为了尽量少走回调
+                        fileProgress[position] = progress;
+                        int result = 0;
+                        for (int i = 0; i < fileProgress.length; i++) {
+                            result += fileProgress[i];
                         }
-                        allProgressTemp[0] = allProgress[0];
-                        if (isDebug()) {
-                            LogUtils.i("上传文件中... progress: " + progress + "%");
-                        }
-                        progressCallBack(allProgress[0] / fileSize, callBack);
+                        result = result / fileSize;
+                        progressCallBack(result, callBack);
+
                     }
-                });
-                builder.addFormDataPart("upload", null, countingRequestBody);
+                }, i);
+                // 索引到最后一个斜杠
+                String resultName = files.get(i).substring(files.get(i).lastIndexOf("/") + 1);
+                builder.addFormDataPart("upload", resultName, countingRequestBody);
                 if (isDebug()) {
                     LogUtils.i("开始上传文件 file: " + file.toString());
                 }
@@ -253,7 +257,7 @@ public class OkHttpTask {
             return;
         }
 
-        final Call call = mOkHttpClient.newCall(UploadRequest.buildPutRequest(url, headers, tag, builder.build()));
+        final Call call = mOkHttpClient.newCall(UploadRequest.buildPostRequest(url, headers, tag, builder.build()));
         call.enqueue(new Callback() {
 
             @Override
@@ -265,7 +269,7 @@ public class OkHttpTask {
             public void onResponse(Response response) throws IOException {
                 int code = response.code();
                 if (response.code() == 200) {
-                    successCallBack("上传成功", callBack);
+                    successCallBack(null, callBack);
                 } else {
                     String msg = response.message();
                     if (TextUtils.isEmpty(msg)) {
@@ -432,7 +436,7 @@ public class OkHttpTask {
     }
 
     private static boolean canPassActivity(WeakReference<Activity> act) {
-        return act != null && act.get() != null && act.get().isFinishing();
+        return act != null && act.get() != null && !act.get().isFinishing();
 
     }
 

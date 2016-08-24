@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
                 .addParams("phone", "15240393098")
                 .with(this)
                 .addParams("password", "123456")
-                .url("http:///login")
+                .url("http://139.196.36.70:3001/login")
                 .post(new BaseCallBack<Object>() {
 
                     @Override
