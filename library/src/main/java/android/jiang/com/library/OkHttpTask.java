@@ -37,6 +37,7 @@ import android.jiang.com.library.cookie.store.HasCookieStore;
 import android.jiang.com.library.cookie.store.MemoryCookieStore;
 import android.jiang.com.library.exception.Exceptions;
 import android.jiang.com.library.listener.NetTaskListener;
+import android.jiang.com.library.log.LInterceptor;
 import android.jiang.com.library.request.CountingRequestBody;
 import android.jiang.com.library.request.DeleteRequest;
 import android.jiang.com.library.request.PostRequest;
@@ -52,6 +53,8 @@ import android.text.TextUtils;
 import com.apkfuns.logutils.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -85,12 +88,13 @@ public class OkHttpTask {
     public static final int TYPE_POST = 60; // post请求
     public static final int TYPE_PUT = 70; // post请求
     public static final int TYPE_DELETE = 90; // delete请求
-
+    private static int exitLoginCode = -1;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;
     private Gson mGson;
-    private boolean isDebug;
+    private boolean isDebug = true;
+
 
     final static class ERROR_OPTIONS {
         public static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
@@ -102,6 +106,7 @@ public class OkHttpTask {
         public static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
 
 
+        public static final String EROR_REQUEST_EXITLOGIN = "请重新登录";
     }
 
 
@@ -138,19 +143,31 @@ public class OkHttpTask {
                     return true;
                 }
             });
-
+            if (isDebug) {
+                okHttpClientBuilder.addInterceptor(new LInterceptor());
+            }
             mOkHttpClient = okHttpClientBuilder.build();
         } else {
             mOkHttpClient = okHttpClient;
         }
 
+
         init();
     }
 
-    public void initDebugModel(boolean isdebug) {
-        isDebug = isdebug;
+    public Gson getmGson() {
+        return mGson;
     }
 
+    public OkHttpTask initDebugModel(boolean isdebug) {
+        isDebug = isdebug;
+        return this;
+    }
+
+    public OkHttpTask initExitLoginCode(int code) {
+        exitLoginCode = code;
+        return this;
+    }
 
     private void init() {
         mDelivery = new Handler(Looper.getMainLooper());
@@ -348,7 +365,7 @@ public class OkHttpTask {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
             }
         }, headers);
     }
@@ -377,7 +394,7 @@ public class OkHttpTask {
                 if (!canPassFragment(act))
                     return;
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
             }
         }, headers);
     }
@@ -409,7 +426,7 @@ public class OkHttpTask {
                     return;
                 }
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack);
 
             }
         }, headers);
@@ -424,11 +441,11 @@ public class OkHttpTask {
             request = PostRequest.buildPostRequest(url, params, tag, headers);  //拿到一个post的request
         } else if (TYPE_GET == type) {
             request = getRequest.buildGetRequest(url, params, tag, headers);//拿到一个get的request
-        } else if(TYPE_PUT == type){
+        } else if (TYPE_PUT == type) {
             request = PutRequest.buildOtherRequest(url, params, tag, headers, type);
-        }else if(type == TYPE_DELETE){
+        } else if (type == TYPE_DELETE) {
             request = DeleteRequest.buildDeleteRequest(url, params, tag, headers);
-        }else{
+        } else {
             Exceptions.illegalArgument("只支持 get post put delete");
         }
 
@@ -439,34 +456,41 @@ public class OkHttpTask {
 
 
     //*********************************处理返回的结果********************************************************
-    private void dealSuccessResponse(Response response, boolean notConvert, BaseCallBack callBack) {
+    private void dealSuccessResponse(Response response, int type, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
-            final String string = HttpUtils.getContent(notConvert, response.body().string());
-
-            if (status == 200) {
-                Object o = mGson.fromJson(string, callBack.mType);
-                successCallBack(o, callBack);
-            } else if (status == 204) {
-                emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
+            if (status == exitLoginCode) {
+                EventBus.getDefault().post(exitLoginCode);
+                failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
             } else {
-                ws_ret o = mGson.fromJson(string, ws_ret.class);
-                if (TextUtils.isEmpty(o.getMsg())) {
-                    failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_500, callBack);
+                final String string = HttpUtils.getContent(notConvert, response.body().string());
+                if (status == 200) {
+                    Object o = mGson.fromJson(string, callBack.mType);
+                    successCallBack(o, callBack);
+                } else if (status == 204) {
+                    emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
                 } else {
-                    failCallBack(status, o.getMsg(), callBack);
+                    ws_ret o = mGson.fromJson(string, ws_ret.class);
+                    if (TextUtils.isEmpty(o.getMsg())) {
+                        failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
+                    } else {
+                        failCallBack(status, o.getMsg(), callBack);
+                    }
                 }
             }
-        } catch (IOException e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callBack);
-        } catch (com.google.gson.JsonParseException e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_JSONERROR, callBack);
         } catch (Exception e) {
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callBack);
+            e.printStackTrace();
+            if (isDebug) {
+                LogUtils.d("exception info: " + e.toString());
+            }
+            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
         } finally {
             try {
                 response.body().close();
             } catch (Exception e) {
+                if (isDebug) {
+                    LogUtils.d("解析Body失败: " + e.toString());
+                }
             }
         }
 
