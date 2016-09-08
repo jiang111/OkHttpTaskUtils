@@ -30,22 +30,20 @@ package android.jiang.com.library.request;
 import android.jiang.com.library.Param;
 import android.jiang.com.library.utils.HeaderUtils;
 
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import okhttp3.MultipartBody;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 /**
  * 生成post需要的request
  * Created by jiang on 15/10/16.
  */
 public class PostRequest {
-
 
     public static Request buildPostRequest(String url, Map<String, String> params, Object tag, Map<String, String> headers) {
         if (params == null) {
@@ -55,11 +53,13 @@ public class PostRequest {
         if (params == null || params.size() == 0) {
             requestBody = RequestBody.create(null, new byte[0]);
         } else {
-            FormEncodingBuilder builder = new FormEncodingBuilder();
+            MultipartBody.Builder builder = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM);
             Set<Map.Entry<String, String>> entrySet = params.entrySet();
             for (Map.Entry<String, String> entry : entrySet) {
-                builder.add(entry.getKey(), entry.getValue());
+                builder.addFormDataPart(entry.getKey(), entry.getValue());
             }
+
             requestBody = builder.build();
         }
         Request.Builder reqBuilder = new Request.Builder();
@@ -83,4 +83,5 @@ public class PostRequest {
 
 
     }
+
 }

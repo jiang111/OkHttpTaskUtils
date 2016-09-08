@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.apkfuns.logutils.LogUtils;
-import com.squareup.okhttp.Response;
+
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements NetTaskListener {
 

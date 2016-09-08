@@ -31,17 +31,16 @@ import android.jiang.com.library.Param;
 import android.jiang.com.library.utils.HeaderUtils;
 import android.jiang.com.library.utils.HttpUtils;
 
-import com.squareup.okhttp.Request;
-
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Request;
 
 /**
  * 生成get请求需要的request
  * Created by jiang on 15/10/16.
  */
-public class getRequest {
+public class getRequest  {
 
     public static Request buildGetRequest(String url, Map<String, String> params, Object tag, Map<String, String> headers) {
         Request.Builder builder = new Request.Builder();
@@ -71,6 +70,5 @@ public class getRequest {
 
         return builder.build();
     }
-
 
 }

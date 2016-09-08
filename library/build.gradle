@@ -19,8 +19,7 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.4.+'
-    compile 'com.squareup.okio:okio:1.5.0'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.google.code.gson:gson:+'
     compile 'com.apkfuns.logutils:library:1.0.6'
     provided 'org.greenrobot:eventbus:3.0.0'

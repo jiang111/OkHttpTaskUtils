@@ -58,7 +58,7 @@ public class OkHttpRequest {
     }
 
     public static void downLoadFile(String url, String path, String fileName, BaseCallBack callBack, Object tag) {
-        OkHttpTask.getInstance().doJobDownLoadFile(url, path, fileName, callBack, tag, null);
+        OkHttpTask.getInstance().downLoadFile(url, path, fileName, callBack, tag, null);
     }
 
     public static void uploadFile(String url, Map<String, String> headers, List<String> files, BaseCallBack callBack, Object tag) {

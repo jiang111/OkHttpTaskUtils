@@ -1,6 +1,7 @@
 package android.jiang.com.library.callback;
 
-import com.squareup.okhttp.Response;
+
+import okhttp3.Response;
 
 /**
  * B可以随便写

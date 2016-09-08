@@ -1,10 +1,9 @@
 package android.jiang.com.library.request;
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.RequestBody;
-
 import java.io.IOException;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSink;
@@ -31,6 +30,7 @@ public class CountingRequestBody extends RequestBody {
         this.listener = listener;
         this.position = position;
     }
+
 
     @Override
     public MediaType contentType() {

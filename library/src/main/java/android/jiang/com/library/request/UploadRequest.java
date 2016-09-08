@@ -3,11 +3,11 @@ package android.jiang.com.library.request;
 import android.jiang.com.library.Param;
 import android.jiang.com.library.utils.HeaderUtils;
 
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 
 /**

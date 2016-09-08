@@ -31,10 +31,11 @@ package android.jiang.com.library.callback;
 import android.jiang.com.library.ws_ret;
 
 import com.google.gson.internal.$Gson$Types;
-import com.squareup.okhttp.Response;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
+import okhttp3.Response;
 
 
 /**
