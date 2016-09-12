@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.jiang.com.library.OkHttpRequest;
-import android.jiang.com.library.callback.UploadCallBack;
+import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.ws_ret;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.iwf.photopicker.PhotoPicker;
+import okhttp3.Response;
 
 /**
  * Created by jiang on 16/8/24.
@@ -72,22 +73,40 @@ public class TestUploadFileActivity extends AppCompatActivity {
                 new OkHttpRequest.Builder()
                         .url("http://192.168.123.22:8990/Upload/Servlet1")
                         .files(mLists)
-                        .upload(new UploadCallBack<ws_ret>() {
+                        .upload(new BaseCallBack<Object>() {
                             @Override
                             public void onFail(ws_ret ret) {
-                                Log.i(TAG, "onFail: " + ret.toString());
+
+                            }
+
+                            @Override
+                            public void onSuccess(Object o) {
+
+                            }
+
+                            @Override
+                            public void onNoData(ws_ret ret) {
+
+                            }
+
+                            @Override
+                            public void onBefore() {
+
+                            }
+
+                            @Override
+                            public void onAfter() {
+
+                            }
+
+                            @Override
+                            public void onFinishResponse(Response response) {
+
                             }
 
                             @Override
                             public void onProgress(long progress) {
 
-                                Log.i(TAG, "onProgress: " + progress);
-                            }
-
-                            @Override
-                            public void success() {
-
-                                Log.i(TAG, "success: ");
                             }
                         });
 
