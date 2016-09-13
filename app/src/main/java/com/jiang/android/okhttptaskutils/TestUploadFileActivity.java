@@ -71,8 +71,9 @@ public class TestUploadFileActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 new OkHttpRequest.Builder()
-                        .url("http://192.168.123.22:8990/Upload/Servlet1")
-                        .files(mLists)
+                        .url("http://120.27.244.198:8000/shard_upload")
+                        .file(mLists.get(0))
+//                        .file(Environment.getExternalStorageDirectory().getPath()+"/1.amr")
                         .upload(new BaseCallBack<Object>() {
                             @Override
                             public void onFail(ws_ret ret) {
@@ -107,6 +108,7 @@ public class TestUploadFileActivity extends AppCompatActivity {
                             @Override
                             public void onProgress(long progress) {
 
+                                Log.i(TAG, "onProgress: "+progress);
                             }
                         });
 

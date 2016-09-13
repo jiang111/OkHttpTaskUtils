@@ -20,10 +20,10 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
         setContentView(R.layout.activity_main);
         OkHttpTask.getInstance().initDebugModel(true);
         new OkHttpRequest.Builder()
-                .addParams("phone", "")
+                .addParams("phone", "15240393098")
                 .with(this)
                 .addParams("password", "123456")
-                .url("http:///login")
+                .url("http://139.196.36.70:3001/login")
                 .post(new BaseCallBack<Object>() {
 
                     @Override

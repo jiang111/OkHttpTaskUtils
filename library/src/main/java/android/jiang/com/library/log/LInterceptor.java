@@ -18,6 +18,8 @@ import okio.Buffer;
 public class LInterceptor implements Interceptor {
 
 
+    public static final int MAX_KB_BODY = 10240;
+
     public LInterceptor() {
 
     }
@@ -50,7 +52,11 @@ public class LInterceptor implements Interceptor {
             if (body != null) {
                 MediaType mediaType = body.contentType();
                 if (mediaType != null) {
-                    stringBuilder.append("body: " + bodyToString(request) + "\n");
+                    if (!isText(mediaType)) {
+                        LogUtils.d("body:is not a text type\n");
+                    } else {
+                        LogUtils.d("body: " + bodyToString(request) + "\n");
+                    }
                     String resp = body.string();
                     LogUtils.json(resp);
                     body = ResponseBody.create(mediaType, resp);
@@ -67,7 +73,7 @@ public class LInterceptor implements Interceptor {
     }
 
 
-    private boolean isText(MediaType mediaType) {
+    private static boolean isText(MediaType mediaType) {
         if (mediaType.type() != null && mediaType.type().equals("text")) {
             return true;
         }
@@ -86,9 +92,14 @@ public class LInterceptor implements Interceptor {
 
         try {
             final Request copy = request.newBuilder().build();
+            if (copy.body().contentLength() > MAX_KB_BODY) {
+                return "body's bytes is too big, so not logging";
+            }
+
             final Buffer buffer = new Buffer();
             copy.body().writeTo(buffer);
             return buffer.readUtf8();
+
         } catch (Exception e) {
             return "parse failed";
         }
