@@ -263,7 +263,7 @@ public class OkHttpTask {
 
                 int code = response.code();
                 if (response.code() == 200) {
-                    successCallBack(null, callBack);
+                    dealSuccessResponse(response,TYPE_POST,false,callBack);
                 } else {
                     String msg = response.message();
                     if (TextUtils.isEmpty(msg)) {
