@@ -93,7 +93,8 @@ public class OkHttpTask {
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;
     private Gson mGson;
-    private boolean isDebug = true;
+    private boolean isDebug = false;
+    private OkHttpClient.Builder okHttpClientBuilder = null;
 
 
     final static class ERROR_OPTIONS {
@@ -134,7 +135,7 @@ public class OkHttpTask {
 
     private OkHttpTask(OkHttpClient okHttpClient) {
         if (okHttpClient == null) {
-            OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
+            okHttpClientBuilder = new OkHttpClient.Builder();
             //cookie enabled
             okHttpClientBuilder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
             okHttpClientBuilder.hostnameVerifier(new HostnameVerifier() {
@@ -143,9 +144,7 @@ public class OkHttpTask {
                     return true;
                 }
             });
-            if (isDebug) {
-                okHttpClientBuilder.addInterceptor(new LInterceptor());
-            }
+
             mOkHttpClient = okHttpClientBuilder.build();
         } else {
             mOkHttpClient = okHttpClient;
@@ -161,6 +160,9 @@ public class OkHttpTask {
 
     public OkHttpTask initDebugModel(boolean isdebug) {
         isDebug = isdebug;
+        if (isDebug && okHttpClientBuilder != null) {
+            okHttpClientBuilder.addInterceptor(new LInterceptor());
+        }
         return this;
     }
 
@@ -263,7 +265,7 @@ public class OkHttpTask {
 
                 int code = response.code();
                 if (response.code() == 200) {
-                    dealSuccessResponse(response,TYPE_POST,false,callBack);
+                    dealSuccessResponse(response, TYPE_POST, false, callBack);
                 } else {
                     String msg = response.message();
                     if (TextUtils.isEmpty(msg)) {
