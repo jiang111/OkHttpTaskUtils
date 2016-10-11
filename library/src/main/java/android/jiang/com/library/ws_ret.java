@@ -67,4 +67,11 @@ public class ws_ret {
         this.state = state;
     }
 
+    @Override
+    public String toString() {
+        return "ws_ret{" +
+                "state=" + state +
+                ", msg='" + msg + '\'' +
+                '}';
+    }
 }

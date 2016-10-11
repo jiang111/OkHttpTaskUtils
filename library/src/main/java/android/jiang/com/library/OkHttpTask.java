@@ -37,7 +37,7 @@ import android.jiang.com.library.cookie.store.HasCookieStore;
 import android.jiang.com.library.cookie.store.MemoryCookieStore;
 import android.jiang.com.library.exception.Exceptions;
 import android.jiang.com.library.listener.NetTaskListener;
-import android.jiang.com.library.log.LInterceptor;
+import android.jiang.com.library.log.HttpLoggingInterceptor;
 import android.jiang.com.library.request.CountingRequestBody;
 import android.jiang.com.library.request.DeleteRequest;
 import android.jiang.com.library.request.PostRequest;
@@ -83,6 +83,7 @@ import okhttp3.Response;
  */
 public class OkHttpTask {
 
+    private static final String TAG = "OkHttpTask";
 
     public static final int TYPE_GET = 30;  //get请求
     public static final int TYPE_POST = 60; // post请求
@@ -93,8 +94,7 @@ public class OkHttpTask {
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;
     private Gson mGson;
-    private boolean isDebug = false;
-    private OkHttpClient.Builder okHttpClientBuilder = null;
+    private static boolean isDebug = false;
 
 
     final static class ERROR_OPTIONS {
@@ -135,7 +135,7 @@ public class OkHttpTask {
 
     private OkHttpTask(OkHttpClient okHttpClient) {
         if (okHttpClient == null) {
-            okHttpClientBuilder = new OkHttpClient.Builder();
+            OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
             //cookie enabled
             okHttpClientBuilder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
             okHttpClientBuilder.hostnameVerifier(new HostnameVerifier() {
@@ -145,6 +145,23 @@ public class OkHttpTask {
                 }
             });
 
+            if (isDebug) {
+                HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+                    @Override
+                    public void log(String message, String json) {
+                        LogUtils.i(message);
+                        if (!TextUtils.isEmpty(json)) {
+                            LogUtils.i("--------json---------\n");
+                            LogUtils.json(json);
+                            LogUtils.i("--------end----------\n");
+                        }
+                    }
+
+                });
+                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+                loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+                okHttpClientBuilder.addInterceptor(loggingInterceptor);
+            }
             mOkHttpClient = okHttpClientBuilder.build();
         } else {
             mOkHttpClient = okHttpClient;
@@ -158,17 +175,12 @@ public class OkHttpTask {
         return mGson;
     }
 
-    public OkHttpTask initDebugModel(boolean isdebug) {
+    public static void debug(boolean isdebug) {
         isDebug = isdebug;
-        if (isDebug && okHttpClientBuilder != null) {
-            okHttpClientBuilder.addInterceptor(new LInterceptor());
-        }
-        return this;
     }
 
-    public OkHttpTask initExitLoginCode(int code) {
+    public static void exitLoginCode(int code) {
         exitLoginCode = code;
-        return this;
     }
 
     private void init() {
@@ -215,6 +227,21 @@ public class OkHttpTask {
      * @param tag      tag
      */
     void uploadFile(String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
+
+
+        if (isDebug) {
+            StringBuilder logBuilder = new StringBuilder();
+            logBuilder.append("------upload file-------").append("\n")
+                    .append("url: ").append(url).append("\n");
+            if (headers != null) {
+                logBuilder.append("headers: ").append(headers.toString()).append("\n");
+            }
+            if (files != null) {
+                logBuilder.append("files: ").append(files.toString()).append("\n");
+            }
+            LogUtils.i(logBuilder.toString());
+        }
+
 
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         if (files != null && files.size() > 0) {
@@ -281,6 +308,19 @@ public class OkHttpTask {
     }
 
     public void downLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
+        if (isDebug) {
+            StringBuilder logBuilder = new StringBuilder();
+            logBuilder.append("------download file-------").append("\n")
+                    .append("url: ").append(url).append("\n")
+                    .append("destFileDir: ").append(destFileDir).append("\n")
+                    .append("fileName: ").append(fileName).append("\n");
+            if (headers != null) {
+                logBuilder.append("headers: ").append(headers.toString()).append("\n");
+            }
+            LogUtils.i(logBuilder.toString());
+        }
+
+
         int type = TYPE_GET;
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(destFileDir) || callback == null || TextUtils.isEmpty(fileName))
             return;

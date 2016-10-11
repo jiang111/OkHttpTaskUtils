@@ -77,12 +77,14 @@ public class TestUploadFileActivity extends AppCompatActivity {
                         .upload(new BaseCallBack<Object>() {
                             @Override
                             public void onFail(ws_ret ret) {
+                                Log.i(TAG, "onFail: ");
 
                             }
 
                             @Override
                             public void onSuccess(Object o) {
 
+                                Log.i(TAG, "onSuccess: ");
                             }
 
                             @Override

@@ -1,6 +1,7 @@
 package com.jiang.android.okhttptaskutils;
 
 import android.jiang.com.library.OkHttpRequest;
+import android.jiang.com.library.OkHttpTask;
 import android.jiang.com.library.callback.BaseCallBack;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.jiang.com.library.ws_ret;
@@ -37,6 +38,53 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
 //                    }
 //                });
 
+        OkHttpTask.debug(true);
+
+//        new OkHttpRequest.Builder()
+//                .addParams("phone", "15240393098")
+//                .with(this)
+//                .addParams("password", "123456")
+//                .url("http://139.196.36.70:3001/login")
+//                .post(new BaseCallBack<Object>() {
+//
+//                    @Override
+//                    public void onFail(ws_ret ret) {
+//                        LogUtils.i(ret.getMsg());
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Object o) {
+//                        LogUtils.json(o.toString());
+//
+//                    }
+//
+//                    @Override
+//                    public void onNoData(ws_ret ret) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onBefore() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAfter() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onFinishResponse(Response response) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onProgress(long progress) {
+//
+//                    }
+//                });
+
+
         new OkHttpRequest.Builder()
                 .url("https://dl.wandoujia.com/files/jupiter/latest/wandoujia-web_seo_baidu_homepage.apk")
                 .fileName("asasas.apk")
@@ -44,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
                 .downLoad(new BaseCallBack<Object>() {
                     @Override
                     public void onFail(ws_ret ret) {
-                        Log.i(TAG, "onFail: ");
+                        Log.i(TAG, "onFail: "+ret.toString());
                     }
 
                     @Override
