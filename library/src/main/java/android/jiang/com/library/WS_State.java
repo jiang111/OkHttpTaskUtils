@@ -36,5 +36,7 @@ public class WS_State {
     public static final int SUCCESS = 200;
     public static final int NODATA = 204;
     public static final int OTHERS = 400;
+    public static final int EXCEPTION = 450;
+    public static final int SERVER_ERROR = 500;
     public static final int NONET = 1000;
 }

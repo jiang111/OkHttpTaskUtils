@@ -275,7 +275,7 @@ public class OkHttpTask {
                 }
             }
         } else {
-            failCallBack(303, "没有文件可上传", callBack);
+            failCallBack(WS_State.OTHERS, "没有文件可上传", callBack);
             return;
         }
 
@@ -284,14 +284,14 @@ public class OkHttpTask {
 
             @Override
             public void onFailure(Call call, IOException e) {
-                failCallBack(303, "上传失败,请重试", callBack);
+                dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 
                 int code = response.code();
-                if (response.code() == 200) {
+                if (code == 200) {
                     dealSuccessResponse(response, TYPE_POST, false, callBack);
                 } else {
                     String msg = response.message();
@@ -328,12 +328,13 @@ public class OkHttpTask {
         doJob(url, null, tag, type, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
+                dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
+                int code = response.code();
+                if (code == 200) {
                     FileOutputStream fos = null;
                     InputStream is = null;
                     try {
@@ -349,7 +350,7 @@ public class OkHttpTask {
                         if (!dir.exists()) {
                             boolean createDirSuccess = dir.mkdirs();
                             if (!createDirSuccess) {  //创建文件夹失败
-                                failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
+                                failCallBack(WS_State.EXCEPTION, ERROR_OPTIONS.EROR_REQUEST_CREATEDIRFAIL, callback);
                                 return;
                             }
                         }
@@ -371,9 +372,9 @@ public class OkHttpTask {
 
                         successCallBack("下载成功", callback);
                     } catch (IOException e) {
-                        failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
+                        failCallBack(WS_State.EXCEPTION, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
                     } catch (Exception e) {
-                        failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
+                        failCallBack(WS_State.EXCEPTION, ERROR_OPTIONS.EROR_REQUEST_UNKNOWN, callback);
                     } finally {
                         try {
                             if (is != null) is.close();
@@ -387,7 +388,7 @@ public class OkHttpTask {
                         }
                     }
                 } else {
-                    failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
+                    failCallBack(code, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
                 }
             }
         }, headers);
@@ -525,7 +526,7 @@ public class OkHttpTask {
             if (isDebug) {
                 LogUtils.d("exception info: " + e.toString());
             }
-            failCallBack(WS_State.OTHERS, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
+            failCallBack(WS_State.EXCEPTION, ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
         } finally {
             try {
                 response.body().close();
@@ -543,7 +544,7 @@ public class OkHttpTask {
     }
 
     private void dealFailResponse(String msg, BaseCallBack callBack) {
-        failCallBack(WS_State.OTHERS, msg, callBack);
+        failCallBack(WS_State.SERVER_ERROR, msg, callBack);
     }
 
     private void failCallBack(final int state, final String msg, final BaseCallBack callback) {
