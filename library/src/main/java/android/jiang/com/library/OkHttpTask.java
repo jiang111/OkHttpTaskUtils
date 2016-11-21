@@ -89,7 +89,8 @@ public class OkHttpTask {
     public static final int TYPE_POST = 60; // post请求
     public static final int TYPE_PUT = 70; // post请求
     public static final int TYPE_DELETE = 90; // delete请求
-    private static int exitLoginCode = -1;
+    public static final int EXIT_LOGIN = 1010;
+    private static int[] exitLoginCode = null;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
     private Handler mDelivery;
@@ -179,7 +180,7 @@ public class OkHttpTask {
         isDebug = isdebug;
     }
 
-    public static void exitLoginCode(int code) {
+    public static void exitLoginCode(int... code) {
         exitLoginCode = code;
     }
 
@@ -502,9 +503,9 @@ public class OkHttpTask {
     private void dealSuccessResponse(Response response, int type, boolean notConvert, BaseCallBack callBack) {
         try {
             int status = response.code();
-            if (status == exitLoginCode) {
+            if (containExitLoginCode(status)) {
                 EventBus.getDefault().post(exitLoginCode);
-                failCallBack(status, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
+                failCallBack(EXIT_LOGIN, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
             } else {
                 final String string = HttpUtils.getContent(notConvert, response.body().string());
                 if (status == 200) {
@@ -537,6 +538,17 @@ public class OkHttpTask {
             }
         }
 
+    }
+
+    private boolean containExitLoginCode(int status) {
+        if (exitLoginCode == null)
+            return false;
+        for (int i = 0; i < exitLoginCode.length; i++) {
+            if (status == exitLoginCode[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void dealNoNetResponse(String erorNonet, BaseCallBack callBack) {

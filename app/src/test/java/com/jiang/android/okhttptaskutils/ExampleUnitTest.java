@@ -12,4 +12,17 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
     }
+
+    @Test
+    public void test2() {
+
+
+        int[] arr = init(1,2,3,4);
+        System.out.print(arr.toString());
+    }
+
+
+    private int[] init(int... value) {
+        return value;
+    }
 }

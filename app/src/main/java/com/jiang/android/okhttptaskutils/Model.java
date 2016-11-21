@@ -30,54 +30,28 @@ package com.jiang.android.okhttptaskutils;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.List;
-
 /**
  * Created by jiang on 16/4/18.
  */
 public class Model {
 
+
     /**
-     * status : 200
-     * msg : success
-     * data : {"list":[{"id":916,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460943333,"function_id":1,"parameter":"{\"noticep\":525}","detail":"{\"thum\":\"\",\"content\":\"\\u0026#34;sdfsdfsdf\\u0026#34;\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":0}"},{"id":915,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460793990,"function_id":1,"parameter":"{\"noticep\":524}","detail":"{\"thum\":\"\",\"content\":\"121212\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初一年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":914,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460793080,"function_id":1,"parameter":"{\"noticep\":523}","detail":"{\"thum\":\"\",\"content\":\"123123131222\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":895,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460705411,"function_id":1,"parameter":"{\"noticep\":521}","detail":"{\"thum\":\"img/zy001/2016/04/15/153008-9803.jpg\",\"content\":\"ggg\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":887,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460599184,"function_id":1,"parameter":"{\"noticep\":519}","detail":"{\"thum\":\"\",\"content\":\"55\",\"exist_voice\":1,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":1,\"comment_num\":0,\"is_read\":1}"}],"last_id":887}
+     * statusCode : 200
+     * data : {"userInfo":{"id":"9f484010-ab94-11e5-a010-356b3b2515d4","username":"姜跃松","profession":"teacher","active":true,"phone":"15240393098","grade":"其它","subject":"语文","isLocal":true,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI","myVideos":2}}
      */
 
     @Expose
-    private int status;
-
-    @Override
-    public String toString() {
-        return "Model{" +
-                "status=" + status +
-                ", msg='" + msg + '\'' +
-                ", data=" + data +
-                '}';
-    }
-
-    @Expose
-    private String msg;
-    /**
-     * list : [{"id":916,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460943333,"function_id":1,"parameter":"{\"noticep\":525}","detail":"{\"thum\":\"\",\"content\":\"\\u0026#34;sdfsdfsdf\\u0026#34;\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":0}"},{"id":915,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460793990,"function_id":1,"parameter":"{\"noticep\":524}","detail":"{\"thum\":\"\",\"content\":\"121212\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初一年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":914,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460793080,"function_id":1,"parameter":"{\"noticep\":523}","detail":"{\"thum\":\"\",\"content\":\"123123131222\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":895,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460705411,"function_id":1,"parameter":"{\"noticep\":521}","detail":"{\"thum\":\"img/zy001/2016/04/15/153008-9803.jpg\",\"content\":\"ggg\",\"exist_voice\":0,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":0,\"comment_num\":0,\"is_read\":1}"},{"id":887,"teacher_name":"张伟","avatar":"img/k12cloud/2016/04/11/113322-2419.jpg","sex":1,"module_name":"家校公告","create":1460599184,"function_id":1,"parameter":"{\"noticep\":519}","detail":"{\"thum\":\"\",\"content\":\"55\",\"exist_voice\":1,\"exist_vote\":0,\"object\":\"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级\",\"zan_num\":1,\"comment_num\":0,\"is_read\":1}"}]
-     * last_id : 887
-     */
+    private int statusCode;
     @Expose
     private DataEntity data;
 
-    public int getStatus() {
-        return status;
+    public int getStatusCode() {
+        return statusCode;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 
     public DataEntity getData() {
@@ -89,151 +63,132 @@ public class Model {
     }
 
     public static class DataEntity {
-        @Expose
-        private int last_id;
         /**
-         * id : 916
-         * teacher_name : 张伟
-         * avatar : img/k12cloud/2016/04/11/113322-2419.jpg
-         * sex : 1
-         * module_name : 家校公告
-         * create : 1460943333
-         * function_id : 1
-         * parameter : {"noticep":525}
-         * detail : {"thum":"","content":"\u0026#34;sdfsdfsdf\u0026#34;","exist_voice":0,"exist_vote":0,"object":"初三年级(1)班·初三年级(3)班·初三年级(7)班·初二年级(5)班·初一年级(3)班·初一年级(5)班·初一年级·初二年级·初三年级","zan_num":0,"comment_num":0,"is_read":0}
+         * userInfo : {"id":"9f484010-ab94-11e5-a010-356b3b2515d4","username":"姜跃松","profession":"teacher","active":true,"phone":"15240393098","grade":"其它","subject":"语文","isLocal":true,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI","myVideos":2}
          */
         @Expose
-        private List<ListEntity> list;
+        private UserInfoEntity userInfo;
 
-        public int getLast_id() {
-            return last_id;
+        public UserInfoEntity getUserInfo() {
+            return userInfo;
         }
 
-        public void setLast_id(int last_id) {
-            this.last_id = last_id;
+        public void setUserInfo(UserInfoEntity userInfo) {
+            this.userInfo = userInfo;
         }
 
-        public List<ListEntity> getList() {
-            return list;
-        }
+        public static class UserInfoEntity {
+            /**
+             * id : 9f484010-ab94-11e5-a010-356b3b2515d4
+             * username : 姜跃松
+             * profession : teacher
+             * active : true
+             * phone : 15240393098
+             * grade : 其它
+             * subject : 语文
+             * isLocal : true
+             * token : eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI
+             * myVideos : 2
+             */
+            @Expose
+            private String id;
+            @Expose
+            private String username;
+            @Expose
+            private String profession;
+            @Expose
+            private boolean active;
+            @Expose
+            private String phone;
+            @Expose
+            private String grade;
+            @Expose
+            private String subject;
+            @Expose
+            private boolean isLocal;
+            @Expose
+            private String token;
+            @Expose
+            private int myVideos;
 
-        public void setList(List<ListEntity> list) {
-            this.list = list;
-        }
-
-        @Override
-        public String toString() {
-            return "DataEntity{" +
-                    "last_id=" + last_id +
-                    ", list=" + list +
-                    '}';
-        }
-
-        public static class ListEntity {
-            @Expose
-            private int id;
-            @Expose
-            private String teacher_name;
-            @Expose
-            private String avatar;
-            @Expose
-            private int sex;
-            @Expose
-            private String module_name;
-            @Expose
-            private int create;
-            @Expose
-            private int function_id;
-            @Expose
-            private String parameter;
-            @Expose
-            private String detail;
-
-            @Override
-            public String toString() {
-                return "ListEntity{" +
-                        "id=" + id +
-                        ", teacher_name='" + teacher_name + '\'' +
-                        ", avatar='" + avatar + '\'' +
-                        ", sex=" + sex +
-                        ", module_name='" + module_name + '\'' +
-                        ", create=" + create +
-                        ", function_id=" + function_id +
-                        ", parameter='" + parameter + '\'' +
-                        ", detail='" + detail + '\'' +
-                        '}';
-            }
-
-            public int getId() {
+            public String getId() {
                 return id;
             }
 
-            public void setId(int id) {
+            public void setId(String id) {
                 this.id = id;
             }
 
-            public String getTeacher_name() {
-                return teacher_name;
+            public String getUsername() {
+                return username;
             }
 
-            public void setTeacher_name(String teacher_name) {
-                this.teacher_name = teacher_name;
+            public void setUsername(String username) {
+                this.username = username;
             }
 
-            public String getAvatar() {
-                return avatar;
+            public String getProfession() {
+                return profession;
             }
 
-            public void setAvatar(String avatar) {
-                this.avatar = avatar;
+            public void setProfession(String profession) {
+                this.profession = profession;
             }
 
-            public int getSex() {
-                return sex;
+            public boolean isActive() {
+                return active;
             }
 
-            public void setSex(int sex) {
-                this.sex = sex;
+            public void setActive(boolean active) {
+                this.active = active;
             }
 
-            public String getModule_name() {
-                return module_name;
+            public String getPhone() {
+                return phone;
             }
 
-            public void setModule_name(String module_name) {
-                this.module_name = module_name;
+            public void setPhone(String phone) {
+                this.phone = phone;
             }
 
-            public int getCreate() {
-                return create;
+            public String getGrade() {
+                return grade;
             }
 
-            public void setCreate(int create) {
-                this.create = create;
+            public void setGrade(String grade) {
+                this.grade = grade;
             }
 
-            public int getFunction_id() {
-                return function_id;
+            public String getSubject() {
+                return subject;
             }
 
-            public void setFunction_id(int function_id) {
-                this.function_id = function_id;
+            public void setSubject(String subject) {
+                this.subject = subject;
             }
 
-            public String getParameter() {
-                return parameter;
+            public boolean isIsLocal() {
+                return isLocal;
             }
 
-            public void setParameter(String parameter) {
-                this.parameter = parameter;
+            public void setIsLocal(boolean isLocal) {
+                this.isLocal = isLocal;
             }
 
-            public String getDetail() {
-                return detail;
+            public String getToken() {
+                return token;
             }
 
-            public void setDetail(String detail) {
-                this.detail = detail;
+            public void setToken(String token) {
+                this.token = token;
+            }
+
+            public int getMyVideos() {
+                return myVideos;
+            }
+
+            public void setMyVideos(int myVideos) {
+                this.myVideos = myVideos;
             }
         }
     }
