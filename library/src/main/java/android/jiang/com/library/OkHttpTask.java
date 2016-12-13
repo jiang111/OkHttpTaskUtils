@@ -309,19 +309,6 @@ public class OkHttpTask {
     }
 
     public void downLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
-        if (isDebug) {
-            StringBuilder logBuilder = new StringBuilder();
-            logBuilder.append("------download file-------").append("\n")
-                    .append("url: ").append(url).append("\n")
-                    .append("destFileDir: ").append(destFileDir).append("\n")
-                    .append("fileName: ").append(fileName).append("\n");
-            if (headers != null) {
-                logBuilder.append("headers: ").append(headers.toString()).append("\n");
-            }
-            LogUtils.i(logBuilder.toString());
-        }
-
-
         int type = TYPE_GET;
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(destFileDir) || callback == null || TextUtils.isEmpty(fileName))
             return;

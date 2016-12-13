@@ -32,7 +32,7 @@ package android.jiang.com.library.callback;
 import android.jiang.com.library.ws_ret;
 
 /**
- * N 只支持 string
+ *
  * Created by jiang on 10/24/15.
  */
 public abstract class DownLoadCallBack<N> extends HttpCallBack<N> {
