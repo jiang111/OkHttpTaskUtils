@@ -89,7 +89,6 @@ public class OkHttpTask {
     public static final int TYPE_POST = 60; // post请求
     public static final int TYPE_PUT = 70; // post请求
     public static final int TYPE_DELETE = 90; // delete请求
-    public static final int EXIT_LOGIN = 1010;
     private static int[] exitLoginCode = null;
     private static OkHttpTask mInstance;
     private OkHttpClient mOkHttpClient;
@@ -101,14 +100,9 @@ public class OkHttpTask {
     final static class ERROR_OPTIONS {
         public static final String EROR_NONET = "无法连接网络，请检查网络连接状态";
         public static final String EROR_REQUEST_ERROR = "请求失败,请重试";
-        public static final String EROR_REQUEST_500 = "服务器内部出错";
-        public static final String EROR_REQUEST_JSONERROR = "Json解析出错";
         public static final String EROR_REQUEST_UNKNOWN = "未知错误";
         public static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
         public static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
-
-
-        public static final String EROR_REQUEST_EXITLOGIN = "请重新登录";
     }
 
 
@@ -356,8 +350,6 @@ public class OkHttpTask {
 
                         }
                         fos.flush();
-                        //如果下载文件成功，第一个参数为文件的绝对路径
-
                         successCallBack("下载成功", callback);
                     } catch (IOException e) {
                         failCallBack(WS_State.EXCEPTION, ERROR_OPTIONS.EROR_REQUEST_IO, callback);
@@ -383,7 +375,7 @@ public class OkHttpTask {
 
     }
 
-    public void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
 
         callBack.onBefore();
 
@@ -401,7 +393,7 @@ public class OkHttpTask {
         }, headers);
     }
 
-    public void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassFragment(act)) {
             return;
         }
@@ -431,7 +423,7 @@ public class OkHttpTask {
     }
 
 
-    public void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassActivity(act)) {
             return;
         }
@@ -492,7 +484,6 @@ public class OkHttpTask {
             int status = response.code();
             if (containExitLoginCode(status)) {
                 EventBus.getDefault().post(exitLoginCode);
-                failCallBack(EXIT_LOGIN, ERROR_OPTIONS.EROR_REQUEST_EXITLOGIN, callBack);
             } else {
                 final String string = HttpUtils.getContent(notConvert, response.body().string());
                 if (status == 200) {
