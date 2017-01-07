@@ -483,7 +483,9 @@ public class OkHttpTask {
         try {
             int status = response.code();
             if (containExitLoginCode(status)) {
+
                 EventBus.getDefault().post(new Integer(exitLoginCode[0]));
+
             } else {
                 final String string = HttpUtils.getContent(notConvert, response.body().string());
                 if (status == 200) {
