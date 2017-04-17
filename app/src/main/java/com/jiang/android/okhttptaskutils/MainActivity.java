@@ -19,38 +19,22 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        OkHttpUtils
-//                .get()
-//                .url("https://dl.wandoujia.com/files/jupiter/latest/wandoujia-web_seo_baidu_homepage.apk")//
-//                .build()
-//                .execute(new FileCallBack(Environment.getExternalStorageDirectory().getAbsolutePath(), "asas.apk")
-//                {
-//                    @Override
-//                    public void onError(Call call, Exception e, int id) {
-//                        Log.i(TAG, "onError: ");
-//                    }
-//
-//                    @Override
-//                    public void onResponse(File response, int id) {
-//                        Log.i(TAG, "onResponse: ");
-//
-//                    }
-//                });
+        OkHttpTask.debug(BuildConfig.DEBUG);
 
         OkHttpTask.debug(true);
 
 
         new OkHttpRequest.Builder()
-                .addParams("phone", "15240393098")
-                .with(this)
-                .addParams("password", "123456")
-                .url("http://login")
-                .post(new BaseCallBack<Model>() {
+                .addHeader("k12code", "cloud")
+                .addParams("type", "1")
+                .url("http://approute.kexinedu.net/api/route")
+                .addParams("code", "2")
+                .addHeader("k12url", "cloud/update_version")
+                .post(new BaseCallBack<Object>() {
 
                     @Override
-                    public void onSuccess(Model body) {
-                        LogUtils.i("success: " + body);
+                    public void onSuccess(Object body) {
+                        LogUtils.i("success: " + body.toString());
                     }
 
                     @Override

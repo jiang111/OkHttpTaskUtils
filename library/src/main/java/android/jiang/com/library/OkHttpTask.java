@@ -66,7 +66,6 @@ import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -629,21 +628,6 @@ public class OkHttpTask {
 
 
     /**
-     * for https-way authentication
-     *
-     * @param certificates
-     */
-    public void setCertificates(InputStream... certificates) {
-        SSLSocketFactory sslSocketFactory = HttpsUtils.getSslSocketFactory(certificates, null, null);
-
-        OkHttpClient.Builder builder = getOkHttpClient().newBuilder();
-        builder = builder.sslSocketFactory(sslSocketFactory);
-        mOkHttpClient = builder.build();
-
-
-    }
-
-    /**
      * for https mutual authentication
      *
      * @param certificates
@@ -651,8 +635,10 @@ public class OkHttpTask {
      * @param password
      */
     public void setCertificates(InputStream[] certificates, InputStream bksFile, String password) {
+
+        HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory(certificates, bksFile, password);
         mOkHttpClient = getOkHttpClient().newBuilder()
-                .sslSocketFactory(HttpsUtils.getSslSocketFactory(certificates, bksFile, password))
+                .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
                 .build();
     }
 
