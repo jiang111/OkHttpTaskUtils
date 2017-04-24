@@ -175,11 +175,11 @@ public class HttpsUtils {
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            try {
-                defaultTrustManager.checkServerTrusted(chain, authType);
-            } catch (CertificateException ce) {
-                localTrustManager.checkServerTrusted(chain, authType);
-            }
+//            try {
+//                defaultTrustManager.checkServerTrusted(chain, authType);
+//            } catch (CertificateException ce) {
+//                localTrustManager.checkServerTrusted(chain, authType);
+//            }
         }
 
 

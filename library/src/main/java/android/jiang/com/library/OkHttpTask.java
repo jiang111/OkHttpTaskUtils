@@ -381,6 +381,7 @@ public class OkHttpTask {
         doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
             }
 
@@ -406,6 +407,7 @@ public class OkHttpTask {
         doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 if (!canPassFragment(act))
                     return;
                 dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
@@ -422,7 +424,7 @@ public class OkHttpTask {
     }
 
 
-    private void doJobByActivity(final WeakReference<Activity> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByActivity(final WeakReference<Activity> act, final String url, final Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
         if (!canPassActivity(act)) {
             return;
         }
@@ -435,6 +437,7 @@ public class OkHttpTask {
         doJob(url, params, tag, TYPE, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 if (!canPassActivity(act)) {
                     return;
                 }
