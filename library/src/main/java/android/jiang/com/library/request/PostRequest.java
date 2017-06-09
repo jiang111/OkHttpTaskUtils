@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import okhttp3.MultipartBody;
+import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -50,14 +50,14 @@ public class PostRequest {
             params = new HashMap<>();
         }
         RequestBody requestBody = null;
+
         if (params == null || params.size() == 0) {
             requestBody = RequestBody.create(null, new byte[0]);
         } else {
-            MultipartBody.Builder builder = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM);
+            FormBody.Builder builder = new FormBody.Builder();
             Set<Map.Entry<String, String>> entrySet = params.entrySet();
             for (Map.Entry<String, String> entry : entrySet) {
-                builder.addFormDataPart(entry.getKey(), entry.getValue());
+                builder.add(entry.getKey(), entry.getValue());
             }
 
             requestBody = builder.build();

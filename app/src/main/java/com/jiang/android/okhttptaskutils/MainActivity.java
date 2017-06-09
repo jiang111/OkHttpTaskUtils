@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity implements NetTaskListener {
 
         new OkHttpRequest.Builder()
                 .addHeader("k12code", "cloud")
-                .addParams("type", "1")
-                .url("http://approute.kexinedu.net/api/route")
-                .addParams("code", "2")
-                .addHeader("k12url", "cloud/update_version")
+                .addHeader("k12url", "cloud/member/login")
+                .url("http://dev.approute.kai12.cn/api/route")
+                .addParams("username", "8")
+                .addParams("password", "123456")
                 .post(new BaseCallBack<Object>() {
 
                     @Override
