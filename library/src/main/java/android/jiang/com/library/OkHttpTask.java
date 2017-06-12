@@ -491,7 +491,12 @@ public class OkHttpTask {
             } else {
                 final String string = HttpUtils.getContent(notConvert, response.body().string());
                 if (status == 200) {
-                    Object o = mGson.fromJson(string, callBack.mType);
+                    Object o;
+                    if (callBack.mType == String.class) {
+                        o = string;
+                    } else {
+                        o = mGson.fromJson(string, callBack.mType);
+                    }
                     successCallBack(o, callBack);
                 } else if (status == 204) {
                     emptyCallBack(WS_State.NODATA, "暂无数据", callBack);
