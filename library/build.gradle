@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 61
-        versionName "3.2.0"
+        versionCode 62
+        versionName "3.2.1"
     }
     buildTypes {
         release {
@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.google.code.gson:gson:+'
     compile 'com.apkfuns.logutils:library:1.0.6'
     provided 'org.greenrobot:eventbus:3.0.0'

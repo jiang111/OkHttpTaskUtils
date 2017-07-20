@@ -63,6 +63,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
@@ -273,7 +274,9 @@ public class OkHttpTask {
             return;
         }
 
-        final Call call = mOkHttpClient.newCall(UploadRequest.buildPostRequest(url, headers, tag, builder.build()));
+        OkHttpClient.Builder uploadBuilder = mOkHttpClient.newBuilder().readTimeout(5, TimeUnit.MINUTES);
+
+        final Call call = uploadBuilder.build().newCall(UploadRequest.buildPostRequest(url, headers, tag, builder.build()));
         call.enqueue(new Callback() {
 
             @Override
