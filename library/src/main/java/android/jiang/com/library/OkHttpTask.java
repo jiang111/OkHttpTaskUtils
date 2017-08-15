@@ -200,15 +200,15 @@ public class OkHttpTask {
      * @param notConvert
      * @param headers    需要特殊处理的请求头
      */
-    public void filterData(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
+    public void filterData(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type, boolean focusCallBack) {
         if (obj == null) {
-            doJobNormal(url, params, callBack, tag, type, notConvert, headers);
+            doJobNormal(url, params, callBack, tag, type, notConvert, headers, focusCallBack);
         } else if (obj instanceof Activity) {
-            doJobByActivity(new WeakReference<>((Activity) obj), url, params, callBack, tag, type, notConvert, headers);
+            doJobByActivity(new WeakReference<>((Activity) obj), url, params, callBack, tag, type, notConvert, headers, focusCallBack);
         } else if (obj instanceof Fragment) {
-            doJobByFragment(new WeakReference<>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers);
+            doJobByFragment(new WeakReference<>((Fragment) obj), url, params, callBack, tag, type, notConvert, headers, focusCallBack);
         } else {
-            doJobNormal(url, params, callBack, tag, type, notConvert, headers);
+            doJobNormal(url, params, callBack, tag, type, notConvert, headers, focusCallBack);
         }
     }
 
@@ -289,7 +289,7 @@ public class OkHttpTask {
 
                 int code = response.code();
                 if (code == 200) {
-                    dealSuccessResponse(response, TYPE_POST, false, callBack);
+                    dealSuccessResponse(response, TYPE_POST, false, callBack, false);
                 } else {
                     String msg = response.message();
                     if (TextUtils.isEmpty(msg)) {
@@ -377,7 +377,7 @@ public class OkHttpTask {
 
     }
 
-    private void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobNormal(final String url, Map<String, String> params, final BaseCallBack callBack, Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers, final boolean focusCallBack) {
 
         callBack.onBefore();
 
@@ -391,12 +391,12 @@ public class OkHttpTask {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack, focusCallBack);
             }
         }, headers);
     }
 
-    private void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByFragment(final WeakReference<Fragment> act, final String url, Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers, final boolean focusCallBack) {
         if (!canPassFragment(act)) {
             return;
         }
@@ -421,13 +421,13 @@ public class OkHttpTask {
                 if (!canPassFragment(act))
                     return;
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack, focusCallBack);
             }
         }, headers);
     }
 
 
-    private void doJobByActivity(final WeakReference<Activity> act, final String url, final Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers) {
+    private void doJobByActivity(final WeakReference<Activity> act, final String url, final Map<String, String> params, final BaseCallBack callBack, final Object tag, final int TYPE, final boolean notConvert, Map<String, String> headers, final boolean focusCallBack) {
         if (!canPassActivity(act)) {
             return;
         }
@@ -454,7 +454,7 @@ public class OkHttpTask {
                     return;
                 }
                 callBack.onFinishResponse(response);
-                dealSuccessResponse(response, TYPE, notConvert, callBack);
+                dealSuccessResponse(response, TYPE, notConvert, callBack, focusCallBack);
 
             }
         }, headers);
@@ -484,11 +484,14 @@ public class OkHttpTask {
 
 
     //*********************************处理返回的结果********************************************************
-    private void dealSuccessResponse(Response response, int type, boolean notConvert, BaseCallBack callBack) {
+    private void dealSuccessResponse(Response response, int type, boolean notConvert, BaseCallBack callBack, boolean focusCallBack) {
         try {
             int status = response.code();
+            String msg = response.message();
             if (containExitLoginCode(status)) {
-
+                if (focusCallBack) {
+                    failCallBack(status, TextUtils.isEmpty(msg) ? "登录失效" : msg, callBack);
+                }
                 EventBus.getDefault().post(new Integer(exitLoginCode[0]));
 
             } else {

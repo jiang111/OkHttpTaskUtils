@@ -44,6 +44,8 @@ import java.util.Map;
 public class OkHttpRequest {
 
     /**
+     * 应该把builder这个类传过去，而不是传递参数
+     *
      * @param obj        一个用来引用的对象
      * @param url        url
      * @param params     需要传递的参数  get请求? 后面的参数也可以通过param传递
@@ -53,8 +55,8 @@ public class OkHttpRequest {
      * @param notConvert
      * @param headers    需要特殊处理的请求头
      */
-    public static void doJob(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type) {
-        OkHttpTask.getInstance().filterData(obj, url, tag, params, callBack, headers, notConvert, type);
+    public static void doJob(NetTaskListener obj, String url, Object tag, Map<String, String> params, final BaseCallBack callBack, Map<String, String> headers, boolean notConvert, int type, boolean focusCallBack) {
+        OkHttpTask.getInstance().filterData(obj, url, tag, params, callBack, headers, notConvert, type, focusCallBack);
     }
 
     public static void downLoadFile(String url, String path, String fileName, BaseCallBack callBack, Object tag) {
@@ -82,6 +84,7 @@ public class OkHttpRequest {
         private int type;
         private boolean notConvert;
         private BaseCallBack callBack;
+        private boolean focusCallBack; //强制回调信息
 
         public Builder build() {
             return this;
@@ -108,6 +111,17 @@ public class OkHttpRequest {
          */
         public Builder notConvert(boolean notConvert) {
             this.notConvert = notConvert;
+            return this;
+        }
+
+        /**
+         * 强制回调信息  默认如果有强制退出的话则不回调信息
+         *
+         * @param focus
+         * @return
+         */
+        public Builder focusCallBack(boolean focus) {
+            this.focusCallBack = focus;
             return this;
         }
 
@@ -177,7 +191,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_GET;
             if (validateParams()) {
-                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_GET);
+                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_GET, focusCallBack);
             }
         }
 
@@ -186,7 +200,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_POST;
             if (validateParams()) {
-                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_POST);
+                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_POST, focusCallBack);
             }
         }
 
@@ -194,7 +208,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_PUT;
             if (validateParams()) {
-                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_PUT);
+                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_PUT, focusCallBack);
             }
         }
 
@@ -202,7 +216,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_DELETE;
             if (validateParams()) {
-                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_DELETE);
+                doJob(ct, url, tag, params, callBack, headers, notConvert, OkHttpTask.TYPE_DELETE, focusCallBack);
             }
         }
 
@@ -217,7 +231,7 @@ public class OkHttpRequest {
         public void execute(BaseCallBack c) {
             this.callBack = c;
             if (validateParams()) {
-                doJob(ct, url, tag, params, callBack, headers, notConvert, type);
+                doJob(ct, url, tag, params, callBack, headers, notConvert, type, focusCallBack);
             }
         }
 
