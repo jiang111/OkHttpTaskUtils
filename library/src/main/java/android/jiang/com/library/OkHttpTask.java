@@ -38,11 +38,11 @@ import android.jiang.com.library.cookie.store.MemoryCookieStore;
 import android.jiang.com.library.exception.Exceptions;
 import android.jiang.com.library.listener.NetTaskListener;
 import android.jiang.com.library.log.HttpLoggingInterceptor;
-import android.jiang.com.library.request.CountingRequestBody;
 import android.jiang.com.library.request.DeleteRequest;
 import android.jiang.com.library.request.PostRequest;
 import android.jiang.com.library.request.PutRequest;
 import android.jiang.com.library.request.UploadRequest;
+import android.jiang.com.library.request.UploadSliceRequestBody;
 import android.jiang.com.library.request.getRequest;
 import android.jiang.com.library.utils.HttpUtils;
 import android.jiang.com.library.utils.HttpsUtils;
@@ -71,11 +71,9 @@ import javax.net.ssl.SSLSession;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.CookieJar;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -221,7 +219,7 @@ public class OkHttpTask {
      * @param callBack 回调
      * @param tag      tag
      */
-    void uploadFile(String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
+    void uploadFile(final String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
 
 
         if (isDebug) {
@@ -241,32 +239,11 @@ public class OkHttpTask {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         if (files != null && files.size() > 0) {
             final int fileSize = files.size();
-
-            final long fileProgress[] = new long[fileSize];
             for (int i = 0; i < fileSize; i++) {
-                final File file = new File(files.get(i));
-
-                CountingRequestBody countingRequestBody = new CountingRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), file), new CountingRequestBody.Listener() {
-                    @Override
-                    public void onRequestProgress(final long bytesWritten, final long contentLength, final int position) {
-                        long progress = bytesWritten * 100 / contentLength;
-                        if (progress < 95 && progress - fileProgress[position] < 4)
-                            return; //为了尽量少走回调
-                        fileProgress[position] = progress;
-                        int result = 0;
-                        for (int i = 0; i < fileProgress.length; i++) {
-                            result += fileProgress[i];
-                        }
-                        result = result / fileSize;
-                        progressCallBack(result, callBack);
-
-                    }
-                }, i);
-                // 索引到最后一个斜杠
                 String resultName = files.get(i).substring(files.get(i).lastIndexOf("/") + 1);
-                builder.addFormDataPart("upload", resultName, countingRequestBody);
+                builder.addFormDataPart("upload", resultName, new UploadSliceRequestBody(files.get(i)));
                 if (isDebug) {
-                    LogUtils.i("开始上传文件 file: " + file.toString());
+                    LogUtils.i("开始上传文件 file: " + files.get(i));
                 }
             }
         } else {
@@ -281,6 +258,8 @@ public class OkHttpTask {
 
             @Override
             public void onFailure(Call call, IOException e) {
+                LogUtils.e("error start  url:" + url);
+                e.printStackTrace();
                 dealFailResponse(ERROR_OPTIONS.EROR_REQUEST_ERROR, callBack);
             }
 
