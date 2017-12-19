@@ -49,6 +49,7 @@ import android.jiang.com.library.utils.HttpsUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.apkfuns.logutils.LogUtils;
 import com.google.gson.Gson;
@@ -56,13 +57,19 @@ import com.google.gson.GsonBuilder;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -211,6 +218,97 @@ public class OkHttpTask {
     }
 
 
+    private ExecutorService mExecutor = Executors.newCachedThreadPool();
+
+    void uploadLargeFile(final String url, final Map<String, String> headers, final String files, final BaseCallBack callBack, Object tag) {
+        mExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                mDelivery.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (callBack != null) {
+                            callBack.onBefore();
+                        }
+                    }
+                });
+                String end = "\r\n";
+                String twoHyphens = "--";
+                String boundary = "*****";
+                try {
+                    URL url1 = new URL(url);
+                    HttpURLConnection con = (HttpURLConnection) url1.openConnection();
+                    con.setChunkedStreamingMode(1024 * 1024);
+                    con.setDoInput(true);
+                    con.setDoOutput(true);
+                    con.setUseCaches(false);
+                    con.setRequestMethod("POST");
+                    for (Map.Entry m : headers.entrySet()) {
+                        //   System.out.println(m.getKey() + ":" + m.getValue());
+                        con.setRequestProperty(m.getKey().toString(), m.getValue().toString());
+                    }
+                    con.setRequestProperty("Connection", "Keep-Alive");
+                    con.setRequestProperty("Charset", "UTF-8");
+                    con.setRequestProperty("Content-Type",
+                            "multipart/form-data;boundary=" + boundary);
+                    DataOutputStream ds =
+                            new DataOutputStream(con.getOutputStream());
+                    ds.writeBytes(twoHyphens + boundary + end);
+
+                    String resultName = files.substring(files.lastIndexOf("/") + 1);
+                    ds.writeBytes("Content-Disposition: form-data; " +
+                            "name=\"upload\";filename=\"" +
+                            resultName + "\"" + end);
+                    ds.writeBytes(end);
+
+                    FileInputStream fStream = new FileInputStream(files);
+                    int bufferSize = 1024 * 1024;
+                    byte[] buffer = new byte[bufferSize];
+
+                    int length = -1;
+                    int count = 1;
+                    while ((length = fStream.read(buffer)) != -1) {
+                        ds.write(buffer, 0, length);
+                        Log.i("progress", "uploading..." + count++);
+                    }
+                    ds.writeBytes(end);
+                    ds.writeBytes(twoHyphens + boundary + twoHyphens + end);
+
+                    fStream.close();
+                    ds.flush();
+                    InputStream is = con.getInputStream();
+                    int ch;
+                    StringBuffer b = new StringBuffer();
+                    while ((ch = is.read()) != -1) {
+                        b.append((char) ch);
+                    }
+                    ds.close();
+                    Log.i("progress", "upload finish:" + b.toString());
+
+                    final int code = con.getResponseCode();
+                    String msg = con.getResponseMessage();
+                    if (code == 200) {
+                        Object o;
+                        if (callBack.mType == String.class) {
+                            o = b.toString();
+                        } else {
+                            o = mGson.fromJson(b.toString(), callBack.mType);
+                        }
+                        successCallBack(o, callBack);
+                    } else {
+                        failCallBack(code, msg, callBack);
+                    }
+
+                } catch (final Exception e) {
+                    e.printStackTrace();
+                    failCallBack(500, e.getMessage(), callBack);
+                }
+
+
+            }
+        });
+    }
+
     /**
      * 上传文件
      *
@@ -234,22 +332,26 @@ public class OkHttpTask {
             }
             LogUtils.i(logBuilder.toString());
         }
+        String fileName = files.get(0);
+        File file = new File(fileName);
+        if (file.length() > 10 * 1024 * 1024) {
+            uploadLargeFile(url, headers, fileName, callBack, tag);
+        } else {
 
+            uploadNormalFile(url, headers, fileName, callBack, tag);
+        }
+
+
+    }
+
+    private void uploadNormalFile(final String url, Map<String, String> headers, String files, final BaseCallBack callBack, Object tag) {
 
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        if (files != null && files.size() > 0) {
-            final int fileSize = files.size();
-            for (int i = 0; i < fileSize; i++) {
-                String resultName = files.get(i).substring(files.get(i).lastIndexOf("/") + 1);
-                builder.addFormDataPart("upload", resultName, new UploadSliceRequestBody(files.get(i)));
-                if (isDebug) {
-                    LogUtils.i("开始上传文件 file: " + files.get(i));
-                }
-            }
-        } else {
-            failCallBack(WS_State.OTHERS, "没有文件可上传", callBack);
-            return;
+        if (isDebug) {
+            LogUtils.i("开始上传文件 file: " + files);
         }
+        String resultName = files.substring(files.lastIndexOf("/") + 1);
+        builder.addFormDataPart("upload", resultName, new UploadSliceRequestBody(files));
 
         OkHttpClient.Builder uploadBuilder = mOkHttpClient.newBuilder().readTimeout(5, TimeUnit.MINUTES);
 
@@ -279,8 +381,6 @@ public class OkHttpTask {
 
             }
         });
-
-
     }
 
     public void downLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
