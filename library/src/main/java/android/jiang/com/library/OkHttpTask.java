@@ -76,6 +76,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.jiang.com.library.OkHttpTask.ERROR_OPTIONS.ERROR_TOKEN;
+
 /**
  * Created by jiang on 16/5/14.
  */
@@ -101,6 +103,7 @@ public class OkHttpTask {
         public static final String EROR_REQUEST_UNKNOWN = "未知错误";
         public static final String EROR_REQUEST_CREATEDIRFAIL = "创建文件失败,请检查权限";
         public static final String EROR_REQUEST_IO = "IO异常，或者本次任务被取消";
+        public static String ERROR_TOKEN = "登录失效，请重新登录";
     }
 
 
@@ -217,9 +220,9 @@ public class OkHttpTask {
      * @param url      url
      * @param headers  验证
      * @param callBack 回调
-     * @param tag      tag
+     * @param o
      */
-    void uploadFile(final String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object tag) {
+    void uploadFile(final String url, Map<String, String> headers, List<String> files, final BaseCallBack callBack, Object o, final Boolean focusCallBack) {
 
 
         if (isDebug) {
@@ -253,7 +256,7 @@ public class OkHttpTask {
 
         OkHttpClient.Builder uploadBuilder = mOkHttpClient.newBuilder().readTimeout(5, TimeUnit.MINUTES);
 
-        final Call call = uploadBuilder.build().newCall(UploadRequest.buildPostRequest(url, headers, tag, builder.build()));
+        final Call call = uploadBuilder.build().newCall(UploadRequest.buildPostRequest(url, headers, o, builder.build()));
         call.enqueue(new Callback() {
 
             @Override
@@ -265,17 +268,7 @@ public class OkHttpTask {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
-                int code = response.code();
-                if (code == 200) {
-                    dealSuccessResponse(response, TYPE_POST, false, callBack, false);
-                } else {
-                    String msg = response.message();
-                    if (TextUtils.isEmpty(msg)) {
-                        msg = "上传失败,请重试";
-                    }
-                    failCallBack(code, msg, callBack);
-                }
+                dealSuccessResponse(response, TYPE_POST, true, callBack, focusCallBack);
 
             }
         });
@@ -283,7 +276,7 @@ public class OkHttpTask {
 
     }
 
-    public void downLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers) {
+    public void downLoadFile(final String url, final String destFileDir, final String fileName, final BaseCallBack callback, Object tag, Map<String, String> headers, final boolean focusCallBack) {
         int type = TYPE_GET;
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(destFileDir) || callback == null || TextUtils.isEmpty(fileName))
             return;
@@ -348,6 +341,12 @@ public class OkHttpTask {
                             e.printStackTrace();
                         }
                     }
+                } else if (containExitLoginCode(code)) {
+                    if (focusCallBack) {
+                        failCallBack(code, ERROR_TOKEN, callback);
+                    }
+                    EventBus.getDefault().post(new Integer(exitLoginCode[0]));
+
                 } else {
                     failCallBack(code, ERROR_OPTIONS.EROR_REQUEST_ERROR, callback);
                 }
@@ -469,7 +468,7 @@ public class OkHttpTask {
             String msg = response.message();
             if (containExitLoginCode(status)) {
                 if (focusCallBack) {
-                    failCallBack(status, TextUtils.isEmpty(msg) ? "登录失效" : msg, callBack);
+                    failCallBack(status, ERROR_TOKEN, callBack);
                 }
                 EventBus.getDefault().post(new Integer(exitLoginCode[0]));
 

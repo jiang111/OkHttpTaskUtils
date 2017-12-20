@@ -59,12 +59,12 @@ public class OkHttpRequest {
         OkHttpTask.getInstance().filterData(obj, url, tag, params, callBack, headers, notConvert, type, focusCallBack);
     }
 
-    public static void downLoadFile(String url, String path, String fileName, BaseCallBack callBack, Object tag) {
-        OkHttpTask.getInstance().downLoadFile(url, path, fileName, callBack, tag, null);
+    public static void downLoadFile(String url, String path, String fileName, BaseCallBack callBack, Object tag, boolean focusCallBack) {
+        OkHttpTask.getInstance().downLoadFile(url, path, fileName, callBack, tag, null, focusCallBack);
     }
 
-    public static void uploadFile(String url, Map<String, String> headers, List<String> files, BaseCallBack callBack, Object tag) {
-        OkHttpTask.getInstance().uploadFile(url, headers, files, callBack, tag);
+    public static void uploadFile(String url, Map<String, String> headers, List<String> files, BaseCallBack callBack, Object tag, boolean focusCallBack) {
+        OkHttpTask.getInstance().uploadFile(url, headers, files, callBack, tag, focusCallBack);
     }
 
     private static void cancel(Object tag) {
@@ -224,7 +224,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_GET;
             if (validateParams()) {
-                downLoadFile(url, path, fileName, callBack, tag);
+                downLoadFile(url, path, fileName, callBack, tag, focusCallBack);
             }
         }
 
@@ -245,7 +245,7 @@ public class OkHttpRequest {
             this.callBack = c;
             type = OkHttpTask.TYPE_POST;
             if (validateParams()) {
-                uploadFile(url, headers, files, callBack, tag);
+                uploadFile(url, headers, files, callBack, tag, focusCallBack);
             }
         }
 
