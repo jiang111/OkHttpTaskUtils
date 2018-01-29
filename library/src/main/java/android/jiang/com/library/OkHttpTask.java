@@ -133,6 +133,9 @@ public class OkHttpTask {
         if (okHttpClient == null) {
             OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
             //cookie enabled
+            okHttpClientBuilder.connectTimeout(5, TimeUnit.HOURS)
+                    .writeTimeout(5, TimeUnit.HOURS)
+                    .readTimeout(5, TimeUnit.HOURS);
             okHttpClientBuilder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
             okHttpClientBuilder.hostnameVerifier(new HostnameVerifier() {
                 @Override
@@ -254,7 +257,10 @@ public class OkHttpTask {
             return;
         }
 
-        OkHttpClient.Builder uploadBuilder = mOkHttpClient.newBuilder().readTimeout(5, TimeUnit.MINUTES);
+        OkHttpClient.Builder uploadBuilder = mOkHttpClient.newBuilder().
+                connectTimeout(5, TimeUnit.HOURS)
+                .writeTimeout(5, TimeUnit.HOURS)
+                .readTimeout(5, TimeUnit.HOURS);
 
         final Call call = uploadBuilder.build().newCall(UploadRequest.buildPostRequest(url, headers, o, builder.build()));
         call.enqueue(new Callback() {
