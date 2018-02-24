@@ -133,9 +133,9 @@ public class OkHttpTask {
         if (okHttpClient == null) {
             OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
             //cookie enabled
-            okHttpClientBuilder.connectTimeout(5, TimeUnit.HOURS)
-                    .writeTimeout(5, TimeUnit.HOURS)
-                    .readTimeout(5, TimeUnit.HOURS);
+            okHttpClientBuilder.connectTimeout(5, TimeUnit.MINUTES)
+                    .writeTimeout(5, TimeUnit.MINUTES)
+                    .readTimeout(5, TimeUnit.MINUTES);
             okHttpClientBuilder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
             okHttpClientBuilder.hostnameVerifier(new HostnameVerifier() {
                 @Override
