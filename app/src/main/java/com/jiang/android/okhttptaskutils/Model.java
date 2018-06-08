@@ -36,10 +36,6 @@ import com.google.gson.annotations.Expose;
 public class Model {
 
 
-    /**
-     * statusCode : 200
-     * data : {"userInfo":{"id":"9f484010-ab94-11e5-a010-356b3b2515d4","username":"姜跃松","profession":"teacher","active":true,"phone":"15240393098","grade":"其它","subject":"语文","isLocal":true,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI","myVideos":2}}
-     */
 
     @Expose
     private int statusCode;
@@ -63,9 +59,7 @@ public class Model {
     }
 
     public static class DataEntity {
-        /**
-         * userInfo : {"id":"9f484010-ab94-11e5-a010-356b3b2515d4","username":"姜跃松","profession":"teacher","active":true,"phone":"15240393098","grade":"其它","subject":"语文","isLocal":true,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI","myVideos":2}
-         */
+        
         @Expose
         private UserInfoEntity userInfo;
 
@@ -78,18 +72,7 @@ public class Model {
         }
 
         public static class UserInfoEntity {
-            /**
-             * id : 9f484010-ab94-11e5-a010-356b3b2515d4
-             * username : 姜跃松
-             * profession : teacher
-             * active : true
-             * phone : 15240393098
-             * grade : 其它
-             * subject : 语文
-             * isLocal : true
-             * token : eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50SWQiOiI5ZjQ4NDAxMC1hYjk0LTExZTUtYTAxMC0zNTZiM2IyNTE1ZDQiLCJwcm9mZXNzaW9uIjoidGVhY2hlciIsImlhdCI6MTQ3OTM3MjY3Mn0.M7r5t-gggIlM0PqtfA7UOopEe-vLmEyi9ltqy4o2drI
-             * myVideos : 2
-             */
+         
             @Expose
             private String id;
             @Expose
